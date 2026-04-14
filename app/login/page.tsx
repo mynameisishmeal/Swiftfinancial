@@ -31,6 +31,22 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    
+    let errorMessage = '';
+    
+    if (!email && !password) {
+      errorMessage = 'Please fill in all fields';
+    } else if (!email && password) {
+      errorMessage = 'Enter email/username';
+    } else if (email && !password) {
+      errorMessage = 'Enter password';
+    }
+    
+    if (errorMessage) {
+      setError(errorMessage);
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/login', {
@@ -164,130 +180,168 @@ export default function Login() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#333'
-                }}>
-                  Email
-                </label>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Email Field with Floating Label */}
+              <div style={{ position: 'relative' }}>
                 <input
                   type="email"
+                  id="login-email"
+                  name="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    const nextSibling = e.target.nextElementSibling as HTMLElement | null;
+                    if (e.target.value && nextSibling) {
+                      nextSibling.style.transform = 'translateY(-12px) scale(0.85)';
+                      nextSibling.style.color = '#0066CC';
+                    }
+                  }}
                   required
                   style={{
                     width: '100%',
-                    padding: '12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    fontSize: '14px',
+                    padding: '20px 16px 8px 16px',
+                    border: 'none',
+                    borderBottom: '2px solid #e5e7eb',
+                    borderRadius: '0',
+                    fontSize: '16px',
                     outline: 'none',
+                    backgroundColor: 'transparent',
+                    transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#0073cf'}
-                  onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                  onFocus={(e) => {
+                    e.target.style.borderBottomColor = '#0066CC';
+                    const nextSibling = e.target.nextElementSibling as HTMLElement | null;
+                    if (nextSibling) {
+                      nextSibling.style.transform = 'translateY(-12px) scale(0.85)';
+                      nextSibling.style.color = '#0066CC';
+                    }
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderBottomColor = '#e5e7eb';
+                    const nextSibling = e.target.nextElementSibling as HTMLElement | null;
+                    if (!e.target.value && nextSibling) {
+                      nextSibling.style.transform = 'translateY(0) scale(1)';
+                      nextSibling.style.color = '#9ca3af';
+                    }
+                  }}
                 />
+                <label
+                  htmlFor="login-email"
+                  style={{
+                    position: 'absolute',
+                    left: '16px',
+                    top: '16px',
+                    fontSize: '16px',
+                    color: '#9ca3af',
+                    pointerEvents: 'none',
+                    transition: 'all 0.3s ease',
+                    transformOrigin: 'left top',
+                    backgroundColor: 'transparent',
+                    padding: '0'
+                  }}
+                >
+                  Email or Username
+                </label>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#333'
-                }}>
+              {/* Password Field with Floating Label */}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="password"
+                  id="login-password"
+                  name="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    const nextSibling = e.target.nextElementSibling as HTMLElement | null;
+                    if (e.target.value && nextSibling) {
+                      nextSibling.style.transform = 'translateY(-12px) scale(0.85)';
+                      nextSibling.style.color = '#0066CC';
+                    }
+                  }}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '20px 16px 8px 16px',
+                    border: 'none',
+                    borderBottom: '2px solid #e5e7eb',
+                    borderRadius: '0',
+                    fontSize: '16px',
+                    outline: 'none',
+                    backgroundColor: 'transparent',
+                    transition: 'all 0.3s ease',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderBottomColor = '#0066CC';
+                    const nextSibling = e.target.nextElementSibling as HTMLElement | null;
+                    if (nextSibling) {
+                      nextSibling.style.transform = 'translateY(-12px) scale(0.85)';
+                      nextSibling.style.color = '#0066CC';
+                    }
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderBottomColor = '#e5e7eb';
+                    const nextSibling = e.target.nextElementSibling as HTMLElement | null;
+                    if (!e.target.value && nextSibling) {
+                      nextSibling.style.transform = 'translateY(0) scale(1)';
+                      nextSibling.style.color = '#9ca3af';
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="login-password"
+                  style={{
+                    position: 'absolute',
+                    left: '16px',
+                    top: '16px',
+                    fontSize: '16px',
+                    color: '#9ca3af',
+                    pointerEvents: 'none',
+                    transition: 'all 0.3s ease',
+                    transformOrigin: 'left top',
+                    backgroundColor: 'transparent',
+                    padding: '0'
+                  }}
+                >
                   Password
                 </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 40px 12px 12px',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      fontSize: '14px',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#0073cf'}
-                    onBlur={(e) => e.target.style.borderColor = '#ddd'}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{
-                      position: 'absolute',
-                      right: '12px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: '#666',
-                      padding: '0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    {showPassword ? (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M1 1l22 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    ) : (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-                      </svg>
-                    )}
-                  </button>
-                </div>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    style={{
-                      width: '16px',
-                      height: '16px',
-                      accentColor: '#0073cf'
-                    }}
-                  />
-                  <label
-                    htmlFor="remember"
-                    style={{
-                      fontSize: '14px',
-                      color: '#374151',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Remember me
-                  </label>
-                </div>
+              {/* Remember Me Checkbox */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  id="remember"
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#0066CC'
+                  }}
+                />
+                <label
+                  htmlFor="remember"
+                  style={{
+                    fontSize: '14px',
+                    color: '#374151',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Remember me
+                </label>
               </div>
 
+              {/* Error Message */}
               {error && (
                 <div style={{
-                  backgroundColor: '#f8d7da',
-                  color: '#721c24',
+                  backgroundColor: '#fee2e2',
+                  color: '#dc2626',
                   padding: '12px',
-                  borderRadius: '4px',
-                  marginBottom: '20px',
+                  borderRadius: '6px',
                   fontSize: '14px',
-                  border: '1px solid #f5c6cb'
+                  border: '1px solid #fecaca',
+                  marginBottom: '16px'
                 }}>
                   {error}
                 </div>
@@ -297,34 +351,29 @@ export default function Login() {
                 type="submit"
                 disabled={loading}
                 style={{
-                  width: '100%',
-                  backgroundColor: loading ? '#ccc' : '#0073cf',
+                  padding: '16px',
+                  background: loading ? '#ccc' : 'linear-gradient(135deg, #0066CC 0%, #004499 100%)',
                   color: '#fff',
-                  padding: '14px',
                   border: 'none',
-                  borderRadius: '4px',
+                  borderRadius: '6px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer'
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 12px rgba(0, 102, 204, 0.3)'
                 }}
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
             </form>
 
-            <div style={{
-              textAlign: 'center',
-              marginTop: '20px',
-              paddingTop: '20px',
-              borderTop: '1px solid #eee'
-            }}>
-              <Link href="#" style={{
-                color: '#0073cf',
-                textDecoration: 'none',
-                fontSize: '14px'
-              }}>
-                Forgot your password?
+            <div style={{ textAlign: 'center', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <Link href="#" style={{ color: '#0066CC', textDecoration: 'none', fontSize: '14px' }}>
+                Forgot username/password?
               </Link>
+              <div style={{ fontSize: '14px', color: '#666' }}>
+                Not Enrolled? <Link href="/register" style={{ color: '#0066CC', textDecoration: 'none', fontWeight: '600' }}>Sign Up Now</Link>
+              </div>
             </div>
           </div>
         </div>

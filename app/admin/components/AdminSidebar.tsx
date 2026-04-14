@@ -1,13 +1,15 @@
-import { Users, MessageSquare, Settings, UserPlus } from 'lucide-react';
+import { Users, MessageSquare, Settings, UserPlus, Globe } from 'lucide-react';
 
 export default function AdminSidebar({ 
   activeTab, 
   setActiveTab, 
-  totalUnreadChats 
+  totalUnreadChats,
+  userRole
 }: { 
   activeTab: string; 
   setActiveTab: (tab: string) => void; 
   totalUnreadChats: number;
+  userRole: string;
 }) {
   return (
     <>
@@ -90,6 +92,12 @@ export default function AdminSidebar({
           <span>Live Chat</span>
           {totalUnreadChats > 0 && <div className="badge">{totalUnreadChats}</div>}
         </button>
+        {userRole === 'superadmin' && (
+          <button className={`sidebar-nav-item ${activeTab === 'homepage-chat' ? 'active' : ''}`} onClick={() => setActiveTab('homepage-chat')}>
+            <Globe size={20} />
+            <span>Homepage Chat</span>
+          </button>
+        )}
         <button className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
           <Settings size={20} />
           <span>Settings</span>

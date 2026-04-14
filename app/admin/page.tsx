@@ -42,6 +42,8 @@ export default function AdminDashboard() {
   const [liveChats, setLiveChats] = useState<any[]>([]);
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [adminMessage, setAdminMessage] = useState('');
+  const [homepageChatMessages, setHomepageChatMessages] = useState<any[]>([]);
+  const [homepageReply, setHomepageReply] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -77,6 +79,21 @@ export default function AdminDashboard() {
       return () => clearInterval(interval);
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'homepage-chat' && userRole === 'superadmin') {
+      const loadHomepageChat = async () => {
+        const res = await fetch('/api/superadmin-chat');
+        const data = await res.json();
+        if (data.messages) {
+          setHomepageChatMessages(data.messages);
+        }
+      };
+      loadHomepageChat();
+      const interval = setInterval(loadHomepageChat, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, userRole]);
 
   const loadAllAccounts = async () => {
     setLoading(true);
@@ -289,6 +306,27 @@ export default function AdminDashboard() {
     if (updatedChat) setSelectedChat(updatedChat);
   };
 
+  const handleHomepageReply = async () => {
+    if (!homepageReply.trim()) return;
+    
+    await fetch('/api/superadmin-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        message: homepageReply.trim(), 
+        sender: 'admin',
+        timestamp: new Date() 
+      }),
+    });
+    
+    setHomepageReply('');
+    const res = await fetch('/api/superadmin-chat');
+    const data = await res.json();
+    if (data.messages) {
+      setHomepageChatMessages(data.messages);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userRole');
@@ -324,14 +362,14 @@ export default function AdminDashboard() {
       <div className="app-container">
         {isDesktop && (
           <div className={`sidebar ${sidebarOpen ? '' : 'closed'}`}>
-            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} totalUnreadChats={totalUnreadChats} />
+            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} totalUnreadChats={totalUnreadChats} userRole={userRole} />
           </div>
         )}
 
         {showMenu && !isDesktop && (
           <div className="mobile-menu" onClick={() => setShowMenu(false)}>
             <div className="mobile-menu-content" onClick={(e) => e.stopPropagation()}>
-              <AdminSidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setShowMenu(false); }} totalUnreadChats={totalUnreadChats} />
+              <AdminSidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setShowMenu(false); }} totalUnreadChats={totalUnreadChats} userRole={userRole} />
             </div>
           </div>
         )}
@@ -429,8 +467,54 @@ export default function AdminDashboard() {
                 googleEmail={googleEmail} 
                 bindGoogleAccount={bindGoogleAccount} 
                 unbindGoogleAccount={unbindGoogleAccount} 
-                loading={loading} 
+                loading={loading}
+                userRole={userRole}
+                showToast={(msg: string, type: 'success' | 'error') => setMessage(msg)}
               />
+            )}
+
+            {activeTab === 'homepage-chat' && userRole === 'superadmin' && (
+              <div className="stat-card">
+                <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px', color: '#111827' }}>Homepage Live Chat</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', height: '500px' }}>
+                  <div style={{ flex: 1, overflowY: 'auto', marginBottom: '16px', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', background: '#f9fafb' }}>
+                    {homepageChatMessages.length === 0 && (
+                      <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280' }}>
+                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+                        <div style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>No messages yet</div>
+                        <div style={{ fontSize: '14px' }}>Messages from homepage visitors will appear here</div>
+                      </div>
+                    )}
+                    {homepageChatMessages.map((msg: any, idx: number) => (
+                      <div key={idx} style={{ display: 'flex', justifyContent: msg.sender === 'visitor' ? 'flex-start' : 'flex-end', marginBottom: '12px' }}>
+                        <div style={{ maxWidth: '70%', padding: '12px 16px', borderRadius: '16px', background: msg.sender === 'visitor' ? 'white' : '#E31837', color: msg.sender === 'visitor' ? '#111827' : 'white', boxShadow: msg.sender === 'visitor' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}>
+                          <div style={{ fontSize: '14px', marginBottom: '4px' }}>{msg.message}</div>
+                          <div style={{ fontSize: '11px', opacity: 0.7 }}>{new Date(msg.timestamp).toLocaleString()}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <input 
+                      type="text" 
+                      value={homepageReply} 
+                      onChange={(e) => setHomepageReply(e.target.value)} 
+                      onKeyPress={(e) => e.key === 'Enter' && handleHomepageReply()} 
+                      placeholder="Type your reply..." 
+                      style={{ flex: 1, padding: '12px 16px', border: '2px solid #e5e7eb', borderRadius: '24px', fontSize: '14px', outline: 'none' }} 
+                    />
+                    <button 
+                      onClick={handleHomepageReply} 
+                      disabled={!homepageReply.trim()} 
+                      style={{ width: '48px', height: '48px', borderRadius: '50%', background: homepageReply.trim() ? '#E31837' : '#e5e7eb', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: homepageReply.trim() ? 'pointer' : 'not-allowed', color: 'white' }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M18 2L9 11M18 2l-6 16-3-7-7-3 16-6z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>

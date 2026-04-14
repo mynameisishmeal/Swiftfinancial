@@ -11,6 +11,9 @@ export default function HomePage() {
   const [heroError, setHeroError] = useState('');
   const [heroLoading, setHeroLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showChat, setShowChat] = useState(false);
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState<Array<{sender: 'visitor' | 'admin', message: string, timestamp: Date}>>([]);
 
   // Session check - redirect if already logged in
   useEffect(() => {
@@ -33,43 +36,6 @@ export default function HomePage() {
     { type: 'video', src: '/assets/298813_medium.mp4', duration: 15000 }
   ];
 
-  useEffect(() => {
-    // Check if already initialized
-    if ((window as any).googleTranslateInitialized) return;
-    
-    // Load Google Translate script
-    const script = document.createElement('script');
-    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    document.body.appendChild(script);
-
-    // Initialize Google Translate
-    (window as any).googleTranslateElementInit = () => {
-      if (!(window as any).google?.translate) return;
-      
-      new (window as any).google.translate.TranslateElement(
-        {
-          pageLanguage: 'en',
-          includedLanguages: 'en,es,fr,de,it,pt,zh-CN,ja,ko,ar,ru',
-          layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
-          autoDisplay: false
-        },
-        'google_translate_element'
-      );
-      (window as any).googleTranslateInitialized = true;
-    };
-
-    return () => {
-      // Cleanup on unmount
-      const translateElement = document.getElementById('google_translate_element');
-      if (translateElement) {
-        translateElement.innerHTML = '';
-      }
-      delete (window as any).googleTranslateElementInit;
-      delete (window as any).googleTranslateInitialized;
-    };
-  }, []);
-
   // Hero carousel auto-slide with dynamic duration
   useEffect(() => {
     const currentSlideDuration = heroSlides[currentSlide].duration;
@@ -80,6 +46,41 @@ export default function HomePage() {
     return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSlide]); // Only depend on currentSlide
+
+  // Load chat messages
+  useEffect(() => {
+    if (showChat) {
+      const loadMessages = async () => {
+        const res = await fetch('/api/superadmin-chat');
+        const data = await res.json();
+        if (data.messages) {
+          setChatMessages(data.messages);
+        }
+      };
+      loadMessages();
+      const interval = setInterval(loadMessages, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [showChat]);
+
+  const handleChatSubmit = async () => {
+    if (!chatMessage.trim()) return;
+    
+    const userMsg = chatMessage.trim();
+    const newMessage = { sender: 'visitor' as const, message: userMsg, timestamp: new Date() };
+    setChatMessages(prev => [...prev, newMessage]);
+    setChatMessage('');
+    
+    await fetch('/api/superadmin-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        message: userMsg,
+        sender: 'visitor',
+        timestamp: new Date()
+      }),
+    });
+  };
 
   return (
     <>
@@ -106,6 +107,8 @@ export default function HomePage() {
         .nav-item { position: relative; }
         .nav-link { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #333; text-decoration: none; padding: 12px 0; transition: color 0.3s; white-space: nowrap; }
         .nav-link:hover { color: #0066CC; }
+        .signin-btn { background: transparent; color: #0066CC; padding: 12px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; white-space: nowrap; }
+        .signin-btn:hover { background: #f0f0f0; }
         .dropdown-menu { position: absolute; top: 100%; left: 0; background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); padding: 32px; min-width: 600px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s; border: 1px solid #f0f0f0; }
         .nav-item:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
         .dropdown-section h4 { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; }
@@ -373,6 +376,28 @@ export default function HomePage() {
         .footer-contact { display: flex; gap: 32px; }
         .contact-item { display: flex; align-items: center; gap: 8px; color: #000000; font-size: 14px; }
         .contact-item svg { color: #00D4AA; }
+        
+        /* Live Chat Widget */
+        .chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+        .chat-button { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #E31837 0%, #c41230 100%); border: none; box-shadow: 0 4px 12px rgba(227, 24, 55, 0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .chat-button:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(227, 24, 55, 0.6); }
+        .chat-window { position: absolute; bottom: 80px; right: 0; width: 380px; height: 500px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; }
+        .chat-header { background: linear-gradient(135deg, #E31837 0%, #c41230 100%); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .chat-header h3 { font-size: 16px; font-weight: 600; margin: 0; }
+        .chat-close { background: none; border: none; color: white; cursor: pointer; font-size: 24px; line-height: 1; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #f9fafb; }
+        .chat-message { max-width: 70%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.4; }
+        .chat-message.visitor { background: #E31837; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-message.admin { background: white; color: #111827; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .chat-input-container { padding: 16px; background: white; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; }
+        .chat-input { flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 24px; font-size: 14px; outline: none; }
+        .chat-input:focus { border-color: #E31837; }
+        .chat-send { width: 48px; height: 48px; border-radius: 50%; background: #E31837; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .chat-send:hover { background: #c41230; transform: scale(1.05); }
+        .chat-send:disabled { background: #e5e7eb; cursor: not-allowed; }
+        @media (max-width: 768px) {
+          .chat-window { width: calc(100vw - 48px); height: 400px; }
+        }
         .homepage-highlights-inner { max-width: 1280px; margin: 0 auto; }
         .homepage-highlights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px; }
         .homepage-highlight-card { text-align: center; padding: 32px 24px; border-radius: 12px; transition: all 0.3s; cursor: pointer; }
@@ -424,14 +449,6 @@ export default function HomePage() {
         .homepage-footer-bottom { border-top: 1px solid #333; padding-top: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
         .homepage-footer-bottom p { font-size: 14px; color: #999; }
         .homepage-footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
-        #google_translate_element { display: inline-block; }
-        .goog-te-banner-frame.skiptranslate { display: none !important; }
-        body { top: 0px !important; }
-        .goog-te-gadget { font-family: inherit !important; }
-        .goog-te-gadget-simple { background-color: transparent !important; border: none !important; padding: 0 !important; }
-        .goog-te-gadget-simple .goog-te-menu-value { color: #333 !important; }
-        .goog-te-gadget-simple .goog-te-menu-value:hover { color: #0073cf !important; }
-        .goog-te-gadget-icon { display: none !important; }
         @media (max-width: 1200px) {
           .modern-nav { gap: 24px; }
           .nav-link { font-size: 14px; }
@@ -463,13 +480,10 @@ export default function HomePage() {
           /* Modern Header Mobile */
           .modern-header-inner { padding: 12px 16px; }
           .modern-nav { display: none; }
-          .header-actions { gap: 3px; }
+          .header-actions { gap: 12px; }
           .search-container { display: none; }
-          #google_translate_element { transform: scale(0.8); transform-origin: center; white-space: nowrap; }
-          #google_translate_element select { max-width: 100px; }
-          .goog-te-combo { font-size: 12px !important; }
-          .signin-btn { padding: 8px 12px; font-size: 12px; white-space: nowrap; }
-          .signin-btn svg { width: 16px; height: 16px; }
+          .signin-btn { padding: 8px 16px; font-size: 13px; }
+          .signin-btn svg { width: 18px; height: 18px; }
           .mobile-menu-btn { display: none; flex-direction: column; gap: 3px; background: none; border: none; cursor: pointer; padding: 8px; }
         .mobile-menu-btn span { width: 20px; height: 2px; background: #333; transition: all 0.3s; }
         .mobile-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 24px; z-index: 1000; }
@@ -615,18 +629,12 @@ export default function HomePage() {
             <Link href="#" className="nav-link">Support</Link>
           </nav>
           <div className="header-actions">
-            <div id="google_translate_element"></div>
             <Link href="/login" className="signin-btn">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               Sign In
             </Link>
-            <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </button>
           </div>
         </div>
       </header>
@@ -1582,6 +1590,56 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Live Chat Widget */}
+      <div className="chat-widget">
+        {!showChat ? (
+          <button className="chat-button" onClick={() => setShowChat(true)}>
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M24 14C24 19.5228 19.5228 24 14 24C12.3817 24 10.8538 23.5787 9.52779 22.8398L4 24L5.16019 18.4722C4.42132 17.1462 4 15.6183 4 14C4 8.47715 8.47715 4 14 4C19.5228 4 24 8.47715 24 14Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="10" cy="14" r="1" fill="white"/>
+              <circle cx="14" cy="14" r="1" fill="white"/>
+              <circle cx="18" cy="14" r="1" fill="white"/>
+            </svg>
+          </button>
+        ) : (
+          <div className="chat-window">
+            <div className="chat-header">
+              <h3>Chat with Support</h3>
+              <button className="chat-close" onClick={() => setShowChat(false)}>×</button>
+            </div>
+            <div className="chat-messages">
+              {chatMessages.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>Welcome!</div>
+                  <div style={{ fontSize: '14px' }}>Send us a message and we'll respond shortly</div>
+                </div>
+              )}
+              {chatMessages.map((msg: any, idx: number) => (
+                <div key={idx} className={`chat-message ${msg.sender}`}>
+                  {msg.message}
+                </div>
+              ))}
+            </div>
+            <div className="chat-input-container">
+              <input
+                type="text"
+                className="chat-input"
+                placeholder="Type your message..."
+                value={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
+              />
+              <button className="chat-send" onClick={handleChatSubmit} disabled={!chatMessage.trim()}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M18 2L9 11M18 2l-6 16-3-7-7-3 16-6z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
     </>
   );
