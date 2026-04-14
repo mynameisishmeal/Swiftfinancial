@@ -1,0 +1,26 @@
+{
+  "chats": [
+    {
+      "userEmail": "admin@faan.gov.ng",
+      "userName": "Eric Cartman",
+      "messages": [
+        {
+          "sender": "user",
+          "message": "hi",
+          "timestamp": "2026-04-12T01:02:59.005Z"
+        },
+        {
+          "sender": "admin",
+          "message": "sup",
+          "timestamp": "2026-04-12T01:20:14.083Z"
+        },
+        {
+          "sender": "user",
+          "message": "how are you",
+          "timestamp": "2026-04-12T01:52:48.814Z"
+        }
+      ],
+      "unreadCount": 2
+    }
+  ]
+}

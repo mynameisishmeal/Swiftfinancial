@@ -1,0 +1,453 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import AdminSidebar from './components/AdminSidebar';
+import AdminTopNav from './components/AdminTopNav';
+import LiveChatTab from './components/LiveChatTab';
+import ManageAccountsTab from './components/ManageAccountsTab';
+import CreateAccountTab from './components/CreateAccountTab';
+import AdminSettingsTab from './components/AdminSettingsTab';
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+};
+
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+export default function AdminDashboard() {
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedAccount, setSelectedAccount] = useState<any>(null);
+  const [amount, setAmount] = useState('');
+  const [claimIdentifier, setClaimIdentifier] = useState('');
+  const [message, setMessage] = useState('');
+  const [userRole, setUserRole] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [googleVerified, setGoogleVerified] = useState(false);
+  const [googleEmail, setGoogleEmail] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+  const [userLimit, setUserLimit] = useState(0);
+  const [usersCreated, setUsersCreated] = useState(0);
+  const [formError, setFormError] = useState('');
+  const [activeTab, setActiveTab] = useState('accounts');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [liveChats, setLiveChats] = useState<any[]>([]);
+  const [selectedChat, setSelectedChat] = useState<any>(null);
+  const [adminMessage, setAdminMessage] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    const role = localStorage.getItem('userRole');
+    
+    if (!email || !role || (role !== 'admin' && role !== 'superadmin')) {
+      router.push('/');
+      return;
+    }
+    
+    setUserEmail(email);
+    setUserRole(role);
+    loadAllAccounts();
+    loadLiveChats();
+    loadGoogleBinding(email);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const desktop = window.innerWidth >= 769;
+      setIsDesktop(desktop);
+      if (desktop) setSidebarOpen(true);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'livechat') {
+      const interval = setInterval(loadLiveChats, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
+
+  const loadAllAccounts = async () => {
+    setLoading(true);
+    const email = localStorage.getItem('userEmail');
+    const role = localStorage.getItem('userRole');
+    const res = await fetch(`/api/admin/accounts?adminEmail=${email}&role=${role}`);
+    const data = await res.json();
+    if (data.accounts) {
+      setAccounts(data.accounts);
+      setUsersCreated(data.accounts.filter((acc: any) => acc.role === 'user').length);
+    }
+    if (role === 'admin') {
+      const adminRes = await fetch(`/api/admin/self?email=${email}`);
+      const adminData = await adminRes.json();
+      if (adminData.userLimit) setUserLimit(adminData.userLimit);
+    }
+    setLoading(false);
+  };
+
+  const loadLiveChats = async () => {
+    const res = await fetch(`/api/livechat?adminEmail=${userEmail}`);
+    const data = await res.json();
+    if (data.chats) setLiveChats(data.chats);
+  };
+
+  const loadGoogleBinding = async (email: string) => {
+    const res = await fetch(`/api/admin/google-binding?email=${email}`);
+    const data = await res.json();
+    if (data.googleEmail) setGoogleEmail(data.googleEmail);
+  };
+
+  const adjustBalance = async (type: string) => {
+    if (!selectedAccount || !amount) return;
+    const res = await fetch('/api/admin/adjust', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accountId: selectedAccount.accountId, amount: parseFloat(amount), type }),
+    });
+    const data = await res.json();
+    setMessage(data.message);
+    setAmount('');
+    await loadAllAccounts();
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const deleteAccount = async (accountId: string) => {
+    if (!confirm('Delete this account?')) return;
+    const res = await fetch('/api/admin/accounts', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accountId }),
+    });
+    const data = await res.json();
+    setMessage(data.message);
+    await loadAllAccounts();
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const toggleTaxClearance = async () => {
+    if (!selectedAccount) return;
+    const res = await fetch('/api/admin/tax', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accountId: selectedAccount.accountId, taxCleared: !selectedAccount.taxCleared }),
+    });
+    const data = await res.json();
+    setMessage(data.message);
+    await loadAllAccounts();
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const changeRole = async (newRole: string) => {
+    if (!selectedAccount || userRole !== 'superadmin') return;
+    const res = await fetch('/api/admin/role', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accountId: selectedAccount.accountId, role: newRole }),
+    });
+    const data = await res.json();
+    setMessage(data.message);
+    await loadAllAccounts();
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const assignToSelf = async () => {
+    if (!selectedAccount) return;
+    const res = await fetch('/api/admin/assign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accountId: selectedAccount.accountId, adminEmail: userEmail }),
+    });
+    const data = await res.json();
+    setMessage(data.message);
+    await loadAllAccounts();
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const claimUser = async (identifier: string) => {
+    const res = await fetch('/api/admin/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, adminEmail: userEmail }),
+    });
+    const data = await res.json();
+    setMessage(data.message);
+    await loadAllAccounts();
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const verifyWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const email = result.user.email;
+      const res = await fetch(`/api/admin/verify-google?email=${email}&adminEmail=${userEmail}`);
+      const data = await res.json();
+      if (data.verified) {
+        setGoogleVerified(true);
+        setGoogleEmail(email!);
+        setMessage('✓ Google verification successful');
+      } else {
+        if (confirm(`Bind ${email} to your admin account?`)) {
+          const bindRes = await fetch('/api/admin/bind-google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ adminEmail: userEmail, googleEmail: email }),
+          });
+          if (bindRes.ok) {
+            setGoogleVerified(true);
+            setGoogleEmail(email!);
+            setMessage('✓ Google account bound');
+          } else {
+            await signOut(auth);
+            setMessage('❌ Failed to bind');
+          }
+        } else {
+          await signOut(auth);
+        }
+      }
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage('❌ Google sign-in failed');
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  const signOutGoogle = async () => {
+    await signOut(auth);
+    setGoogleVerified(false);
+    setGoogleEmail('');
+  };
+
+  const bindGoogleAccount = async () => {
+    try {
+      setLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
+      const googleEmail = result.user.email;
+      const res = await fetch('/api/admin/bind-google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: userEmail, googleEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setGoogleEmail(googleEmail!);
+        setMessage('✓ Google account bound successfully');
+      } else {
+        setMessage('✕ ' + data.message);
+      }
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage('✕ Failed to bind Google account');
+      setTimeout(() => setMessage(''), 3000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const unbindGoogleAccount = async () => {
+    if (!confirm('Unbind Google account?')) return;
+    setLoading(true);
+    try {
+      await signOut(auth);
+    } catch (error) {}
+    const res = await fetch('/api/admin/bind-google', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminEmail: userEmail }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setGoogleEmail('');
+      setMessage('✓ Google account unbound');
+    } else {
+      setMessage('✕ ' + data.message);
+    }
+    setTimeout(() => setMessage(''), 3000);
+    setLoading(false);
+  };
+
+  const handleAdminReply = async () => {
+    if (!adminMessage.trim() || !selectedChat) return;
+    await fetch('/api/livechat', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userEmail: selectedChat.userEmail, message: adminMessage.trim(), timestamp: new Date() }),
+    });
+    setAdminMessage('');
+    await loadLiveChats();
+    const updatedChat = liveChats.find(c => c.userEmail === selectedChat.userEmail);
+    if (updatedChat) setSelectedChat(updatedChat);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
+    router.push('/');
+  };
+
+  const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance || 0), 0);
+  const totalUnreadChats = liveChats.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
+
+  return (
+    <>
+      <style jsx>{`
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .app-container { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F4F4F4; min-height: 100vh; }
+        .sidebar { width: 260px; background: white; border-right: 1px solid #e5e7eb; position: fixed; left: 0; top: 0; bottom: 0; transition: transform 0.3s ease; z-index: 100; display: none; overflow-y: auto; }
+        .mobile-menu { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; }
+        .mobile-menu-content { width: 260px; background: white; height: 100%; overflow-y: auto; }
+        @media (min-width: 769px) {
+          .sidebar { display: flex; flex-direction: column; }
+          .sidebar.closed { transform: translateX(-260px); }
+          .main-content-wrapper { margin-left: 260px; transition: margin-left 0.3s ease; }
+          .main-content-wrapper.sidebar-closed { margin-left: 0; }
+        }
+        @media (max-width: 768px) {
+          .main-content-wrapper { margin-left: 0; }
+        }
+        .content { padding: 24px; }
+        .stat-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box; overflow: hidden; }
+        .stat-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; word-break: break-word; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #111827; word-break: break-all; }
+      `}</style>
+
+      <div className="app-container">
+        {isDesktop && (
+          <div className={`sidebar ${sidebarOpen ? '' : 'closed'}`}>
+            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} totalUnreadChats={totalUnreadChats} />
+          </div>
+        )}
+
+        {showMenu && !isDesktop && (
+          <div className="mobile-menu" onClick={() => setShowMenu(false)}>
+            <div className="mobile-menu-content" onClick={(e) => e.stopPropagation()}>
+              <AdminSidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setShowMenu(false); }} totalUnreadChats={totalUnreadChats} />
+            </div>
+          </div>
+        )}
+
+        <div className={`main-content-wrapper ${sidebarOpen ? '' : 'sidebar-closed'}`}>
+          <AdminTopNav 
+            isDesktop={isDesktop} 
+            sidebarOpen={sidebarOpen} 
+            setSidebarOpen={setSidebarOpen} 
+            setShowMenu={setShowMenu} 
+            userEmail={userEmail} 
+            userRole={userRole} 
+            logout={logout} 
+          />
+
+          <div className="content">
+            {message && (
+              <div style={{ background: message.includes('✓') || message.includes('success') ? '#f0fdf4' : '#fef2f2', border: `1px solid ${message.includes('✓') || message.includes('success') ? '#86efac' : '#fca5a5'}`, padding: '16px', borderRadius: '8px', marginBottom: '24px', color: message.includes('✓') || message.includes('success') ? '#15803d' : '#dc2626', fontWeight: 600 }}>
+                {message}
+              </div>
+            )}
+
+            {activeTab === 'accounts' && (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                  <div className="stat-card">
+                    <div className="stat-label">TOTAL ACCOUNTS</div>
+                    <div className="stat-value">{accounts.length}</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-label">TOTAL BALANCE</div>
+                    <div className="stat-value">${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  </div>
+                  {userRole === 'admin' && (
+                    <div className="stat-card">
+                      <div className="stat-label">USERS LEFT TO CREATE</div>
+                      <div className="stat-value">{Math.max(0, userLimit - usersCreated)}/{userLimit}</div>
+                    </div>
+                  )}
+                  <div className="stat-card">
+                    <div className="stat-label">SYSTEM STATUS</div>
+                    <div style={{ fontSize: '16px', color: '#10b981', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></div>
+                      Online
+                    </div>
+                  </div>
+                </div>
+                <ManageAccountsTab 
+                  accounts={accounts} 
+                  selectedAccount={selectedAccount} 
+                  setSelectedAccount={setSelectedAccount} 
+                  amount={amount} 
+                  setAmount={setAmount} 
+                  adjustBalance={adjustBalance} 
+                  deleteAccount={deleteAccount} 
+                  toggleTaxClearance={toggleTaxClearance} 
+                  changeRole={changeRole} 
+                  assignToSelf={assignToSelf} 
+                  userRole={userRole} 
+                  loading={loading} 
+                />
+              </>
+            )}
+
+            {activeTab === 'create' && (
+              <CreateAccountTab 
+                googleVerified={googleVerified} 
+                googleEmail={googleEmail} 
+                verifyWithGoogle={verifyWithGoogle} 
+                signOutGoogle={signOutGoogle} 
+                userEmail={userEmail} 
+                userRole={userRole} 
+                setFormError={setFormError} 
+                setMessage={setMessage} 
+                loadAllAccounts={loadAllAccounts}
+                claimIdentifier={claimIdentifier}
+                setClaimIdentifier={setClaimIdentifier}
+                claimUser={claimUser}
+              />
+            )}
+
+            {activeTab === 'livechat' && (
+              <LiveChatTab 
+                liveChats={liveChats} 
+                selectedChat={selectedChat} 
+                setSelectedChat={setSelectedChat} 
+                adminMessage={adminMessage} 
+                setAdminMessage={setAdminMessage} 
+                handleAdminReply={handleAdminReply} 
+              />
+            )}
+
+            {activeTab === 'settings' && (
+              <AdminSettingsTab 
+                googleEmail={googleEmail} 
+                bindGoogleAccount={bindGoogleAccount} 
+                unbindGoogleAccount={unbindGoogleAccount} 
+                loading={loading} 
+              />
+            )}
+          </div>
+        </div>
+
+        {formError && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={() => setFormError('')}>
+            <div style={{ background: 'white', padding: '24px', borderRadius: '8px', maxWidth: '400px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>❌</div>
+                <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0 }}>Error</h3>
+              </div>
+              <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>{formError}</p>
+              <button onClick={() => setFormError('')} style={{ width: '100%', padding: '12px', background: '#E31837', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>OK</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}

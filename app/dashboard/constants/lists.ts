@@ -1,0 +1,30 @@
+export const payeeList = [
+  { category: 'Utilities', name: 'Duke Energy' },
+  { category: 'Utilities', name: 'Pacific Gas & Electric (PG&E)' },
+  { category: 'Utilities', name: 'Southern California Edison' },
+  { category: 'Utilities', name: 'Con Edison' },
+  { category: 'Utilities', name: 'Florida Power & Light' },
+  { category: 'Internet & Cable', name: 'Comcast Xfinity' },
+  { category: 'Internet & Cable', name: 'AT&T' },
+  { category: 'Internet & Cable', name: 'Verizon' },
+  { category: 'Internet & Cable', name: 'Spectrum' },
+  { category: 'Phone Services', name: 'T-Mobile' },
+  { category: 'Phone Services', name: 'Sprint' },
+  { category: 'Credit Cards', name: 'American Express' },
+  { category: 'Credit Cards', name: 'Visa' },
+  { category: 'Insurance', name: 'State Farm' },
+  { category: 'Insurance', name: 'Geico' },
+  { category: 'Streaming', name: 'Netflix' },
+  { category: 'Streaming', name: 'Hulu' },
+];
+
+export const bankList = [
+  { category: 'US Banks', name: 'JPMorgan Chase Bank' },
+  { category: 'US Banks', name: 'Swift Financial' },
+  { category: 'US Banks', name: 'Wells Fargo Bank' },
+  { category: 'US Banks', name: 'Citibank' },
+  { category: 'UK Banks', name: 'HSBC UK' },
+  { category: 'UK Banks', name: 'Barclays Bank' },
+  { category: 'European Banks', name: 'Deutsche Bank' },
+  { category: 'European Banks', name: 'BNP Paribas' },
+];
