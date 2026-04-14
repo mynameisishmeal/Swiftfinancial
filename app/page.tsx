@@ -615,13 +615,6 @@ export default function HomePage() {
             <Link href="#" className="nav-link">Support</Link>
           </nav>
           <div className="header-actions">
-            <div className="search-container">
-              <input type="text" placeholder="Search..." className="search-input" />
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="search-icon">
-                <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="2"/>
-                <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
             <div id="google_translate_element"></div>
             <Link href="/login" className="signin-btn">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
