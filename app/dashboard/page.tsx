@@ -587,6 +587,11 @@ Swift Financial, N.A. Member FDIC.
     setLiveChatMessages(prev => [...prev, newMessage]);
     setLiveChatMessage('');
     
+    // Get managedBy from account
+    const accountRes = await fetch(`/api/accounts?email=${email}`);
+    const accountData = await accountRes.json();
+    const managedBy = accountData.managedBy || null;
+    
     // Send to admin via API
     await fetch('/api/livechat', {
       method: 'POST',
@@ -595,7 +600,8 @@ Swift Financial, N.A. Member FDIC.
         userEmail: email, 
         userName: name,
         message: userMsg,
-        timestamp: new Date()
+        timestamp: new Date(),
+        managedBy: managedBy
       }),
     });
   };

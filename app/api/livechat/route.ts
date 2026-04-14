@@ -14,7 +14,7 @@ if (!fs.existsSync(CHAT_FILE)) {
 
 export async function POST(request: Request) {
   try {
-    const { userEmail, userName, message, timestamp } = await request.json();
+    const { userEmail, userName, message, timestamp, managedBy } = await request.json();
     
     const data = JSON.parse(fs.readFileSync(CHAT_FILE, 'utf-8'));
     
@@ -24,10 +24,13 @@ export async function POST(request: Request) {
       userChat = {
         userEmail,
         userName,
+        managedBy: managedBy || null,
         messages: [],
         unreadCount: 0
       };
       data.chats.push(userChat);
+    } else if (managedBy && !userChat.managedBy) {
+      userChat.managedBy = managedBy;
     }
     
     userChat.messages.push({
@@ -54,7 +57,10 @@ export async function GET(request: Request) {
     const data = JSON.parse(fs.readFileSync(CHAT_FILE, 'utf-8'));
     
     if (adminEmail) {
-      return NextResponse.json({ chats: data.chats });
+      const filteredChats = data.chats.filter((c: any) => 
+        c.managedBy === adminEmail || c.managedBy === null
+      );
+      return NextResponse.json({ chats: filteredChats });
     } else if (userEmail) {
       const userChat = data.chats.find((c: any) => c.userEmail === userEmail);
       return NextResponse.json({ messages: userChat?.messages || [] });
