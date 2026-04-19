@@ -43,3 +43,51 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ message: 'Error: ' + error.message }, { status: 500 });
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { accountId, name, email, password } = await req.json();
+    
+    if (!accountId || !name || !email || !password) {
+      return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db('habank');
+    
+    // Check if account exists
+    const account = await db.collection('accounts').findOne({ accountId });
+    if (!account) {
+      return NextResponse.json({ message: 'Account not found' }, { status: 404 });
+    }
+
+    // Check if new email is already taken by another account
+    if (email !== account.email) {
+      const existingEmail = await db.collection('accounts').findOne({ 
+        email, 
+        accountId: { $ne: accountId } 
+      });
+      if (existingEmail) {
+        return NextResponse.json({ message: 'Email already in use by another account' }, { status: 400 });
+      }
+    }
+
+    // Update user details
+    await db.collection('accounts').updateOne(
+      { accountId },
+      { 
+        $set: { 
+          name, 
+          email, 
+          password 
+        } 
+      }
+    );
+
+    return NextResponse.json({ 
+      message: 'User details updated successfully'
+    });
+  } catch (error: any) {
+    return NextResponse.json({ message: 'Error: ' + error.message }, { status: 500 });
+  }
+}

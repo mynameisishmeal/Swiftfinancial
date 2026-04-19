@@ -2,9 +2,13 @@ import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI!;
 const options = {
-  serverSelectionTimeoutMS: 10000,
-  connectTimeoutMS: 10000,
+  serverSelectionTimeoutMS: 30000,
+  connectTimeoutMS: 30000,
   socketTimeoutMS: 45000,
+  maxPoolSize: 10,
+  minPoolSize: 5,
+  retryWrites: true,
+  retryReads: true,
 };
 
 let client: MongoClient;

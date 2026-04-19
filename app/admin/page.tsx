@@ -203,6 +203,18 @@ export default function AdminDashboard() {
     setTimeout(() => setMessage(''), 3000);
   };
 
+  const updateUserDetails = async (accountId: string, name: string, email: string, password: string) => {
+    const res = await fetch('/api/admin/accounts', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accountId, name, email, password }),
+    });
+    const data = await res.json();
+    setMessage(data.message);
+    await loadAllAccounts();
+    setTimeout(() => setMessage(''), 3000);
+  };
+
   const verifyWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -429,7 +441,8 @@ export default function AdminDashboard() {
                   changeRole={changeRole} 
                   assignToSelf={assignToSelf} 
                   userRole={userRole} 
-                  loading={loading} 
+                  loading={loading}
+                  updateUserDetails={updateUserDetails}
                 />
               </>
             )}
