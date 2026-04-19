@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function ManageAccountsTab({ 
   accounts, 
   selectedAccount, 
@@ -10,8 +12,36 @@ export default function ManageAccountsTab({
   changeRole, 
   assignToSelf, 
   userRole, 
-  loading 
+  loading,
+  updateUserDetails
 }: any) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editName, setEditName] = React.useState('');
+  const [editEmail, setEditEmail] = React.useState('');
+  const [editPassword, setEditPassword] = React.useState('');
+
+  React.useEffect(() => {
+    if (selectedAccount) {
+      setEditName(selectedAccount.name || '');
+      setEditEmail(selectedAccount.email || '');
+      setEditPassword(selectedAccount.password || '');
+      setIsEditing(false);
+    }
+  }, [selectedAccount]);
+
+  const handleSaveEdit = async () => {
+    if (!selectedAccount) return;
+    await updateUserDetails(selectedAccount.accountId, editName, editEmail, editPassword);
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditName(selectedAccount?.name || '');
+    setEditEmail(selectedAccount?.email || '');
+    setEditPassword(selectedAccount?.password || '');
+    setIsEditing(false);
+  };
+
   return (
     <>
       <style jsx>{`
@@ -132,8 +162,15 @@ export default function ManageAccountsTab({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div>
                       <p style={{ fontWeight: '600', color: '#111827', marginBottom: '4px', wordBreak: 'break-word' }}>{acc.name}</p>
-                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px', wordBreak: 'break-all' }}>{acc.email}</p>
-                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', wordBreak: 'break-all' }}>{acc.accountId}</p>
+                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px', wordBreak: 'break-all' }}>
+                        <span style={{ fontWeight: '600' }}>Email:</span> {acc.email}
+                      </p>
+                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px', wordBreak: 'break-all' }}>
+                        <span style={{ fontWeight: '600' }}>Password:</span> <span style={{ fontFamily: 'monospace', background: '#fff', padding: '2px 6px', borderRadius: '3px', border: '1px solid #e5e7eb' }}>{acc.password || 'N/A'}</span>
+                      </p>
+                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', wordBreak: 'break-all' }}>
+                        <span style={{ fontWeight: '600' }}>Account:</span> {acc.accountId}
+                      </p>
                       <span style={{
                         fontSize: '11px',
                         padding: '2px 8px',
@@ -179,12 +216,92 @@ export default function ManageAccountsTab({
             {selectedAccount ? (
               <div>
                 <div style={{ background: '#f9fafb', padding: '16px', border: '1px solid #e5e7eb', marginBottom: '16px', borderRadius: '8px' }}>
-                  <p className="label">SELECTED ACCOUNT</p>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', marginTop: '8px' }}>{selectedAccount.name}</p>
-                  <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{selectedAccount.email}</p>
-                  <p style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginTop: '12px' }}>
-                    ${(selectedAccount.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <p className="label" style={{ marginBottom: 0 }}>SELECTED ACCOUNT DETAILS</p>
+                    {!isEditing ? (
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        style={{ padding: '6px 12px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                      >
+                        EDIT
+                      </button>
+                    ) : (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={handleSaveEdit}
+                          style={{ padding: '6px 12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                        >
+                          SAVE
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          style={{ padding: '6px 12px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                        >
+                          CANCEL
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ marginTop: '12px', display: 'grid', gap: '12px' }}>
+                    <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Full Name</p>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="input"
+                          style={{ fontSize: '14px', padding: '8px' }}
+                        />
+                      ) : (
+                        <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{selectedAccount.name}</p>
+                      )}
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Email</p>
+                      {isEditing ? (
+                        <input
+                          type="email"
+                          value={editEmail}
+                          onChange={(e) => setEditEmail(e.target.value)}
+                          className="input"
+                          style={{ fontSize: '13px', padding: '8px' }}
+                        />
+                      ) : (
+                        <p style={{ fontSize: '13px', color: '#111827', wordBreak: 'break-all' }}>{selectedAccount.email}</p>
+                      )}
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Password</p>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editPassword}
+                          onChange={(e) => setEditPassword(e.target.value)}
+                          className="input"
+                          style={{ fontSize: '13px', padding: '8px', fontFamily: 'monospace' }}
+                        />
+                      ) : (
+                        <p style={{ fontSize: '13px', color: '#111827', fontFamily: 'monospace', background: '#fff', padding: '8px', borderRadius: '4px', border: '1px solid #e5e7eb' }}>{selectedAccount.password || 'N/A'}</p>
+                      )}
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>Account Number</p>
+                      <p style={{ fontSize: '13px', color: '#111827', fontFamily: 'monospace' }}>{selectedAccount.accountId}</p>
+                    </div>
+                    {selectedAccount.iban && (
+                      <div>
+                        <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>IBAN</p>
+                        <p style={{ fontSize: '13px', color: '#111827', fontFamily: 'monospace' }}>{selectedAccount.iban}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>Balance</p>
+                      <p style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+                        ${(selectedAccount.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>

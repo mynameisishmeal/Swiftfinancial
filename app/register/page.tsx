@@ -12,7 +12,7 @@ export default function Register() {
   const [avatar, setAvatar] = useState('');
   const [wantMockHistory, setWantMockHistory] = useState(false);
   const [mockAmount, setMockAmount] = useState('');
-  const [mockTimeframe, setMockTimeframe] = useState<'1month' | '6months' | '1year'>('6months');
+  const [mockTimeframe, setMockTimeframe] = useState<'1month' | '6months' | '1year' | '2years' | '3years' | '4years' | '5years' | '6years'>('6months');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -222,12 +222,17 @@ export default function Register() {
                       <label className="block text-xs font-semibold text-gray-700 mb-1">HISTORY TIMEFRAME</label>
                       <select
                         value={mockTimeframe}
-                        onChange={(e) => setMockTimeframe(e.target.value as '1month' | '6months' | '1year')}
+                        onChange={(e) => setMockTimeframe(e.target.value as '1month' | '6months' | '1year' | '2years' | '3years' | '4years' | '5years' | '6years')}
                         className="w-full px-3 py-2 border border-gray-300 focus:border-[#DB0011] focus:outline-none text-sm"
                       >
                         <option value="1month">1 Month</option>
                         <option value="6months">6 Months</option>
                         <option value="1year">1 Year</option>
+                        <option value="2years">2 Years</option>
+                        <option value="3years">3 Years</option>
+                        <option value="4years">4 Years</option>
+                        <option value="5years">5 Years</option>
+                        <option value="6years">6 Years</option>
                       </select>
                     </div>
                   </div>

@@ -149,6 +149,9 @@ export default function CreateAccountTab({
                 setFormError('');
                 const formData = new FormData(e.currentTarget);
                 const accountRole = formData.get('accountRole') as string;
+                const wantMockHistory = formData.get('wantMockHistory') === 'on';
+                const mockAmount = parseFloat(formData.get('mockAmount') as string) || 0;
+                const mockTimeframe = formData.get('mockTimeframe') as string;
                 
                 const res = await fetch('/api/admin/create-account', {
                   method: 'POST',
@@ -158,9 +161,13 @@ export default function CreateAccountTab({
                     name: accountRole === 'admin' ? formData.get('email')?.toString().split('@')[0] : formData.get('name'),
                     email: formData.get('email'),
                     password: formData.get('password'),
-                    initialAmount: accountRole === 'admin' ? 0 : parseFloat(formData.get('amount') as string) || 0,
+                    initialAmount: accountRole === 'admin' ? 0 : (wantMockHistory ? 0 : parseFloat(formData.get('amount') as string) || 0),
                     role: accountRole,
                     userLimit: accountRole === 'admin' ? Math.max(1, parseInt(formData.get('userLimit') as string) || 1) : undefined,
+                    mockHistory: wantMockHistory && mockAmount > 0 ? {
+                      totalAmount: mockAmount,
+                      timeframe: mockTimeframe
+                    } : null
                   }),
                 });
                 const data = await res.json();
@@ -205,6 +212,42 @@ export default function CreateAccountTab({
                 <div className="form-group">
                   <label className="label">USER LIMIT (Admin only)</label>
                   <input name="userLimit" type="number" min="1" placeholder="1" className="input" />
+                </div>
+                <div className="form-group" style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <input
+                      type="checkbox"
+                      id="wantMockHistory"
+                      name="wantMockHistory"
+                      onChange={(e) => {
+                        const mockFields = document.getElementById('mockHistoryFields');
+                        if (mockFields) mockFields.style.display = e.target.checked ? 'block' : 'none';
+                      }}
+                      style={{ width: '16px', height: '16px' }}
+                    />
+                    <label htmlFor="wantMockHistory" className="label" style={{ marginBottom: 0 }}>
+                      ADD MOCK TRANSACTION HISTORY
+                    </label>
+                  </div>
+                  <div id="mockHistoryFields" style={{ display: 'none', marginLeft: '24px' }}>
+                    <div className="form-group">
+                      <label className="label">TOTAL HISTORY AMOUNT</label>
+                      <input name="mockAmount" type="number" placeholder="e.g., 1000000 for $1M" className="input" />
+                    </div>
+                    <div className="form-group">
+                      <label className="label">HISTORY TIMEFRAME</label>
+                      <select name="mockTimeframe" className="input" defaultValue="6months">
+                        <option value="1month">1 Month</option>
+                        <option value="6months">6 Months</option>
+                        <option value="1year">1 Year</option>
+                        <option value="2years">2 Years</option>
+                        <option value="3years">3 Years</option>
+                        <option value="4years">4 Years</option>
+                        <option value="5years">5 Years</option>
+                        <option value="6years">6 Years</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                   CREATE ACCOUNT

@@ -1,17 +1,21 @@
 export interface MockHistoryOptions {
   totalAmount: number;
-  timeframe: '2years' | '3years' | '4years' | '5years';
+  timeframe: '1month' | '6months' | '1year' | '2years' | '3years' | '4years' | '5years' | '6years';
 }
 
 export function generateMockTransactions(options: MockHistoryOptions) {
   const { totalAmount, timeframe } = options;
   
   const now = new Date();
-  const timeframeMap = {
+  const timeframeMap: Record<string, number> = {
+    '1month': 30,
+    '6months': 180,
+    '1year': 365,
     '2years': 730,
     '3years': 1095,
     '4years': 1460,
-    '5years': 1825
+    '5years': 1825,
+    '6years': 2190
   };
   
   const days = timeframeMap[timeframe];
