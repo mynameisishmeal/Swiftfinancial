@@ -449,10 +449,6 @@ export default function AdminDashboard() {
 
             {activeTab === 'create' && (
               <CreateAccountTab 
-                googleVerified={googleVerified} 
-                googleEmail={googleEmail} 
-                verifyWithGoogle={verifyWithGoogle} 
-                signOutGoogle={signOutGoogle} 
                 userEmail={userEmail} 
                 userRole={userRole} 
                 setFormError={setFormError} 

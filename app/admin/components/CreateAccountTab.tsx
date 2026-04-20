@@ -1,8 +1,4 @@
 export default function CreateAccountTab({ 
-  googleVerified, 
-  googleEmail, 
-  verifyWithGoogle, 
-  signOutGoogle, 
   userEmail, 
   userRole, 
   setFormError, 
@@ -158,75 +154,75 @@ export default function CreateAccountTab({
             }
             setTimeout(() => setMessage(''), 3000);
           }}>
-                {userRole === 'superadmin' && (
-                  <div className="form-group">
-                    <label className="label">ACCOUNT TYPE</label>
-                    <select name="accountRole" className="input" defaultValue="user">
-                      <option value="user">User Account</option>
-                      <option value="admin">Admin Account</option>
-                    </select>
-                  </div>
-                )}
+            {userRole === 'superadmin' && (
+              <div className="form-group">
+                <label className="label">ACCOUNT TYPE</label>
+                <select name="accountRole" className="input" defaultValue="user">
+                  <option value="user">User Account</option>
+                  <option value="admin">Admin Account</option>
+                </select>
+              </div>
+            )}
+            <div className="form-group">
+              <label className="label">FULL NAME</label>
+              <input name="name" className="input" required />
+            </div>
+            <div className="form-group">
+              <label className="label">EMAIL</label>
+              <input name="email" type="email" required className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">PASSWORD</label>
+              <input name="password" type="password" required className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">INITIAL AMOUNT</label>
+              <input name="amount" type="number" placeholder="0.00" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">USER LIMIT (Admin only)</label>
+              <input name="userLimit" type="number" min="1" placeholder="1" className="input" />
+            </div>
+            <div className="form-group" style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <input
+                  type="checkbox"
+                  id="wantMockHistory"
+                  name="wantMockHistory"
+                  onChange={(e) => {
+                    const mockFields = document.getElementById('mockHistoryFields');
+                    if (mockFields) mockFields.style.display = e.target.checked ? 'block' : 'none';
+                  }}
+                  style={{ width: '16px', height: '16px' }}
+                />
+                <label htmlFor="wantMockHistory" className="label" style={{ marginBottom: 0 }}>
+                  ADD MOCK TRANSACTION HISTORY
+                </label>
+              </div>
+              <div id="mockHistoryFields" style={{ display: 'none', marginLeft: '24px' }}>
                 <div className="form-group">
-                  <label className="label">FULL NAME</label>
-                  <input name="name" className="input" required />
+                  <label className="label">TOTAL HISTORY AMOUNT</label>
+                  <input name="mockAmount" type="number" placeholder="e.g., 1000000 for $1M" className="input" />
                 </div>
                 <div className="form-group">
-                  <label className="label">EMAIL</label>
-                  <input name="email" type="email" required className="input" />
+                  <label className="label">HISTORY TIMEFRAME</label>
+                  <select name="mockTimeframe" className="input" defaultValue="6months">
+                    <option value="1month">1 Month</option>
+                    <option value="6months">6 Months</option>
+                    <option value="1year">1 Year</option>
+                    <option value="2years">2 Years</option>
+                    <option value="3years">3 Years</option>
+                    <option value="4years">4 Years</option>
+                    <option value="5years">5 Years</option>
+                    <option value="6years">6 Years</option>
+                  </select>
                 </div>
-                <div className="form-group">
-                  <label className="label">PASSWORD</label>
-                  <input name="password" type="password" required className="input" />
-                </div>
-                <div className="form-group">
-                  <label className="label">INITIAL AMOUNT</label>
-                  <input name="amount" type="number" placeholder="0.00" className="input" />
-                </div>
-                <div className="form-group">
-                  <label className="label">USER LIMIT (Admin only)</label>
-                  <input name="userLimit" type="number" min="1" placeholder="1" className="input" />
-                </div>
-                <div className="form-group" style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                    <input
-                      type="checkbox"
-                      id="wantMockHistory"
-                      name="wantMockHistory"
-                      onChange={(e) => {
-                        const mockFields = document.getElementById('mockHistoryFields');
-                        if (mockFields) mockFields.style.display = e.target.checked ? 'block' : 'none';
-                      }}
-                      style={{ width: '16px', height: '16px' }}
-                    />
-                    <label htmlFor="wantMockHistory" className="label" style={{ marginBottom: 0 }}>
-                      ADD MOCK TRANSACTION HISTORY
-                    </label>
-                  </div>
-                  <div id="mockHistoryFields" style={{ display: 'none', marginLeft: '24px' }}>
-                    <div className="form-group">
-                      <label className="label">TOTAL HISTORY AMOUNT</label>
-                      <input name="mockAmount" type="number" placeholder="e.g., 1000000 for $1M" className="input" />
-                    </div>
-                    <div className="form-group">
-                      <label className="label">HISTORY TIMEFRAME</label>
-                      <select name="mockTimeframe" className="input" defaultValue="6months">
-                        <option value="1month">1 Month</option>
-                        <option value="6months">6 Months</option>
-                        <option value="1year">1 Year</option>
-                        <option value="2years">2 Years</option>
-                        <option value="3years">3 Years</option>
-                        <option value="4years">4 Years</option>
-                        <option value="5years">5 Years</option>
-                        <option value="6years">6 Years</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                  CREATE ACCOUNT
-                </button>
-              </form>
+              </div>
+            </div>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+              CREATE ACCOUNT
+            </button>
+          </form>
         </div>
       </div>
     </>
