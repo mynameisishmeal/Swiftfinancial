@@ -114,6 +114,9 @@ export default function CreateAccountTab({
           <h3 className="card-title">Create New Account</h3>
         </div>
         <div className="card-content">
+          <div style={{ padding: '12px', marginBottom: '16px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', fontSize: '13px', color: '#0369a1' }}>
+            ℹ️ No Google verification required. Fill out the form below to create a new account directly.
+          </div>
           <form id="create-account-form" onSubmit={async (e) => {
             e.preventDefault();
             setFormError('');
