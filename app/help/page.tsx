@@ -142,8 +142,8 @@ export default function Help() {
                         <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
                           Chat with a representative online
                         </p>
-                        <button style={{ padding: '10px 20px', background: '#e5e7eb', border: 'none', borderRadius: '6px', cursor: 'not-allowed' }} disabled>
-                          Start Chat (Coming Soon)
+                        <button style={{ padding: '10px 20px', background: '#e31837', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }} onClick={() => window.open('https://wa.me/message/IQWVVQXQXQXQX', '_blank')}>
+                          Start Live Chat
                         </button>
                       </div>
                       

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
+import { useToast } from '../components/Toast';
 import AdminSidebar from './components/AdminSidebar';
 import AdminTopNav from './components/AdminTopNav';
 import LiveChatTab from './components/LiveChatTab';
@@ -45,6 +46,7 @@ export default function AdminDashboard() {
   const [homepageChatMessages, setHomepageChatMessages] = useState<any[]>([]);
   const [homepageReply, setHomepageReply] = useState('');
   const router = useRouter();
+  const { showToast, ToastComponent } = useToast();
 
   useEffect(() => {
     const email = localStorage.getItem('userEmail');
@@ -133,10 +135,9 @@ export default function AdminDashboard() {
       body: JSON.stringify({ accountId: selectedAccount.accountId, amount: parseFloat(amount), type }),
     });
     const data = await res.json();
-    setMessage(data.message);
+    showToast(data.message, 'success');
     setAmount('');
     await loadAllAccounts();
-    setTimeout(() => setMessage(''), 3000);
   };
 
   const deleteAccount = async (accountId: string) => {
@@ -147,9 +148,8 @@ export default function AdminDashboard() {
       body: JSON.stringify({ accountId }),
     });
     const data = await res.json();
-    setMessage(data.message);
+    showToast(data.message, 'success');
     await loadAllAccounts();
-    setTimeout(() => setMessage(''), 3000);
   };
 
   const toggleTaxClearance = async () => {
@@ -160,9 +160,8 @@ export default function AdminDashboard() {
       body: JSON.stringify({ accountId: selectedAccount.accountId, taxCleared: !selectedAccount.taxCleared }),
     });
     const data = await res.json();
-    setMessage(data.message);
+    showToast(data.message, 'success');
     await loadAllAccounts();
-    setTimeout(() => setMessage(''), 3000);
   };
 
   const changeRole = async (newRole: string) => {
@@ -173,9 +172,8 @@ export default function AdminDashboard() {
       body: JSON.stringify({ accountId: selectedAccount.accountId, role: newRole }),
     });
     const data = await res.json();
-    setMessage(data.message);
+    showToast(data.message, 'success');
     await loadAllAccounts();
-    setTimeout(() => setMessage(''), 3000);
   };
 
   const assignToSelf = async () => {
@@ -186,9 +184,8 @@ export default function AdminDashboard() {
       body: JSON.stringify({ accountId: selectedAccount.accountId, adminEmail: userEmail }),
     });
     const data = await res.json();
-    setMessage(data.message);
+    showToast(data.message, 'success');
     await loadAllAccounts();
-    setTimeout(() => setMessage(''), 3000);
   };
 
   const claimUser = async (identifier: string) => {
@@ -198,9 +195,8 @@ export default function AdminDashboard() {
       body: JSON.stringify({ identifier, adminEmail: userEmail }),
     });
     const data = await res.json();
-    setMessage(data.message);
+    showToast(data.message, 'success');
     await loadAllAccounts();
-    setTimeout(() => setMessage(''), 3000);
   };
 
   const updateUserDetails = async (accountId: string, name: string, email: string, password: string) => {
@@ -210,9 +206,8 @@ export default function AdminDashboard() {
       body: JSON.stringify({ accountId, name, email, password }),
     });
     const data = await res.json();
-    setMessage(data.message);
+    showToast(data.message, 'success');
     await loadAllAccounts();
-    setTimeout(() => setMessage(''), 3000);
   };
 
   const verifyWithGoogle = async () => {
@@ -224,7 +219,7 @@ export default function AdminDashboard() {
       if (data.verified) {
         setGoogleVerified(true);
         setGoogleEmail(email!);
-        setMessage('✓ Google verification successful');
+        showToast('Google verification successful', 'success');
       } else {
         if (confirm(`Bind ${email} to your admin account?`)) {
           const bindRes = await fetch('/api/admin/bind-google', {
@@ -235,19 +230,17 @@ export default function AdminDashboard() {
           if (bindRes.ok) {
             setGoogleVerified(true);
             setGoogleEmail(email!);
-            setMessage('✓ Google account bound');
+            showToast('Google account bound', 'success');
           } else {
             await signOut(auth);
-            setMessage('❌ Failed to bind');
+            showToast('Failed to bind', 'error');
           }
         } else {
           await signOut(auth);
         }
       }
-      setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      setMessage('❌ Google sign-in failed');
-      setTimeout(() => setMessage(''), 3000);
+      showToast('Google sign-in failed', 'error');
     }
   };
 
@@ -270,14 +263,12 @@ export default function AdminDashboard() {
       const data = await res.json();
       if (res.ok) {
         setGoogleEmail(googleEmail!);
-        setMessage('✓ Google account bound successfully');
+        showToast('Google account bound successfully', 'success');
       } else {
-        setMessage('✕ ' + data.message);
+        showToast(data.message, 'error');
       }
-      setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      setMessage('✕ Failed to bind Google account');
-      setTimeout(() => setMessage(''), 3000);
+      showToast('Failed to bind Google account', 'error');
     } finally {
       setLoading(false);
     }
@@ -297,11 +288,10 @@ export default function AdminDashboard() {
     const data = await res.json();
     if (res.ok) {
       setGoogleEmail('');
-      setMessage('✓ Google account unbound');
+      showToast('Google account unbound', 'success');
     } else {
-      setMessage('✕ ' + data.message);
+      showToast(data.message, 'error');
     }
-    setTimeout(() => setMessage(''), 3000);
     setLoading(false);
   };
 
@@ -372,6 +362,7 @@ export default function AdminDashboard() {
       `}</style>
 
       <div className="app-container">
+        {ToastComponent}
         {isDesktop && (
           <div className={`sidebar ${sidebarOpen ? '' : 'closed'}`}>
             <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} totalUnreadChats={totalUnreadChats} userRole={userRole} />
@@ -398,11 +389,6 @@ export default function AdminDashboard() {
           />
 
           <div className="content">
-            {message && (
-              <div style={{ background: message.includes('✓') || message.includes('success') ? '#f0fdf4' : '#fef2f2', border: `1px solid ${message.includes('✓') || message.includes('success') ? '#86efac' : '#fca5a5'}`, padding: '16px', borderRadius: '8px', marginBottom: '24px', color: message.includes('✓') || message.includes('success') ? '#15803d' : '#dc2626', fontWeight: 600 }}>
-                {message}
-              </div>
-            )}
 
             {activeTab === 'accounts' && (
               <>
@@ -478,7 +464,7 @@ export default function AdminDashboard() {
                 unbindGoogleAccount={unbindGoogleAccount} 
                 loading={loading}
                 userRole={userRole}
-                showToast={(msg: string, type: 'success' | 'error') => setMessage(msg)}
+                showToast={(msg: string, type: 'success' | 'error') => showToast(msg, type)}
               />
             )}
 

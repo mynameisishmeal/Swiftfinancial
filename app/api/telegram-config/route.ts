@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MongoClient } from 'mongodb';
-
-const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-const client = new MongoClient(uri);
+import clientPromise from '@/lib/mongodb';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,8 +9,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    await client.connect();
-    const db = client.db('bankingApp');
+    const client = await clientPromise;
+    const db = client.db('habank');
     const collection = db.collection('accounts');
 
     const updateData: any = { 
@@ -39,8 +36,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Telegram config error:', error);
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 });
-  } finally {
-    await client.close();
   }
 }
 
@@ -53,8 +48,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Email required' }, { status: 400 });
     }
 
-    await client.connect();
-    const db = client.db('bankingApp');
+    const client = await clientPromise;
+    const db = client.db('habank');
     const collection = db.collection('accounts');
 
     const account = await collection.findOne(
@@ -75,7 +70,5 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error('Telegram config fetch error:', error);
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 });
-  } finally {
-    await client.close();
   }
 }

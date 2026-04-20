@@ -3,11 +3,13 @@
 import '../globals.css';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '../components/Toast';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [initialAmount, setInitialAmount] = useState('');
   const [avatar, setAvatar] = useState('');
   const [wantMockHistory, setWantMockHistory] = useState(false);
@@ -17,6 +19,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
+  const { showToast, ToastComponent } = useToast();
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,19 +57,22 @@ export default function Register() {
       const data = await res.json();
       
       if (res.ok) {
-        setSuccess('Account created successfully! Redirecting to login...');
-        setTimeout(() => router.push('/'), 2000);
+        showToast(`Account created successfully for ${email}! Account ID: ${data.accountId}`, 'success');
+        setTimeout(() => router.push('/'), 3000);
       } else {
         setError(data.message);
+        showToast(data.message, 'error');
       }
     } catch (error) {
       setError('Registration failed. Please try again.');
+      showToast('Registration failed. Please try again.', 'error');
     }
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-white">
+      {ToastComponent}
       <div className="bg-[#DB0011] h-2"></div>
       
       <nav className="bg-black px-6 py-4">
@@ -158,13 +164,42 @@ export default function Register() {
 
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">PASSWORD</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 focus:border-[#DB0011] focus:outline-none"
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 pr-12 border border-gray-300 focus:border-[#DB0011] focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      color: '#9ca3af'
+                    }}
+                  >
+                    {showPassword ? (
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M14.95 14.95a7 7 0 0 1-9.9 0M3 3l14 14M10 7a3 3 0 0 1 3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M1 10s3-7 9-7 9 7 9 7-3 7-9 7-9-7-9-7z" stroke="currentColor" strokeWidth="2"/>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M1 10s3-7 9-7 9 7 9 7-3 7-9 7-9-7-9-7z" stroke="currentColor" strokeWidth="2"/>
+                        <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="2"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div>

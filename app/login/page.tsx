@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useLanguage } from '@/lib/useLanguage';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const { t, language, changeLanguage } = useLanguage();
 
   // Session check - redirect if already logged in
   useEffect(() => {
@@ -140,10 +142,22 @@ export default function Login() {
               <Image src="/assets/BofA_rgb.png" alt="Swift Financial" width={200} height={24} style={{ cursor: 'pointer' }} />
             </Link>
             <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-              <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>Personal</Link>
-              <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>Business</Link>
-              <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>Investing</Link>
-              <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>Support</Link>
+              <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>{t.personal}</Link>
+              <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>{t.business}</Link>
+              <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>{t.investing}</Link>
+              <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>{t.support}</Link>
+              <select 
+                value={language} 
+                onChange={(e) => changeLanguage(e.target.value as any)}
+                style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '12px', cursor: 'pointer' }}
+              >
+                <option value="en">🇺🇸 EN</option>
+                <option value="es">🇪🇸 ES</option>
+                <option value="fr">🇫🇷 FR</option>
+                <option value="de">🇩🇪 DE</option>
+                <option value="zh">🇨🇳 ZH</option>
+                <option value="ar">🇸🇦 AR</option>
+              </select>
             </nav>
           </div>
         </header>
@@ -173,7 +187,7 @@ export default function Login() {
                 color: '#333',
                 marginBottom: '8px'
               }}>
-                Welcome
+                {t.welcome}
               </h1>
               <p style={{ color: '#666', fontSize: '14px' }}>
                 Access your Swift Financial account
@@ -206,8 +220,9 @@ export default function Login() {
                     fontSize: '16px',
                     outline: 'none',
                     backgroundColor: 'transparent',
-                    transition: 'all 0.3s ease',
-                    boxSizing: 'border-box'
+                        transition: 'all 0.3s ease',
+                        boxSizing: 'border-box',
+                        color: '#1a1a1a'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderBottomColor = '#0066CC';
@@ -241,7 +256,7 @@ export default function Login() {
                     padding: '0'
                   }}
                 >
-                  Email or Username
+                  {t.email}
                 </label>
               </div>
 
@@ -270,8 +285,9 @@ export default function Login() {
                     fontSize: '16px',
                     outline: 'none',
                     backgroundColor: 'transparent',
-                    transition: 'all 0.3s ease',
-                    boxSizing: 'border-box'
+                        transition: 'all 0.3s ease',
+                        boxSizing: 'border-box',
+                        color: '#1a1a1a'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderBottomColor = '#0066CC';
@@ -305,7 +321,7 @@ export default function Login() {
                     padding: '0'
                   }}
                 >
-                  Password
+                  {t.password}
                 </label>
               </div>
 
@@ -328,7 +344,7 @@ export default function Login() {
                     cursor: 'pointer'
                   }}
                 >
-                  Remember me
+                  {t.rememberMe}
                 </label>
               </div>
 
@@ -363,16 +379,16 @@ export default function Login() {
                   boxShadow: '0 4px 12px rgba(0, 102, 204, 0.3)'
                 }}
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? t.signingIn : t.signIn}
               </button>
             </form>
 
             <div style={{ textAlign: 'center', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <Link href="#" style={{ color: '#0066CC', textDecoration: 'none', fontSize: '14px' }}>
-                Forgot username/password?
+                {t.forgotPassword}
               </Link>
               <div style={{ fontSize: '14px', color: '#666' }}>
-                Not Enrolled? <Link href="/register" style={{ color: '#0066CC', textDecoration: 'none', fontWeight: '600' }}>Sign Up Now</Link>
+                {t.notEnrolled} <Link href="/register" style={{ color: '#0066CC', textDecoration: 'none', fontWeight: '600' }}>{t.signUpNow}</Link>
               </div>
             </div>
           </div>

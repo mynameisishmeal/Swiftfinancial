@@ -120,7 +120,8 @@ export default function CreateAccountTab({
           <form id="create-account-form" onSubmit={async (e) => {
             e.preventDefault();
             setFormError('');
-            const formData = new FormData(e.currentTarget);
+            const form = e.currentTarget;
+            const formData = new FormData(form);
             const accountRole = formData.get('accountRole') as string;
             const wantMockHistory = formData.get('wantMockHistory') === 'on';
             const mockAmount = parseFloat(formData.get('mockAmount') as string) || 0;
@@ -137,6 +138,19 @@ export default function CreateAccountTab({
                 initialAmount: accountRole === 'admin' ? 0 : (wantMockHistory ? 0 : parseFloat(formData.get('amount') as string) || 0),
                 role: accountRole,
                 userLimit: accountRole === 'admin' ? Math.max(1, parseInt(formData.get('userLimit') as string) || 1) : undefined,
+                savingsBalance: parseFloat(formData.get('savingsBalance') as string) || 0,
+                creditBalance: parseFloat(formData.get('creditBalance') as string) || 0,
+                creditLimit: parseFloat(formData.get('creditLimit') as string) || 5000,
+                ficoScore: parseInt(formData.get('ficoScore') as string) || 750,
+                rewardsPoints: parseInt(formData.get('rewardsPoints') as string) || 0,
+                cardExpiry: formData.get('cardExpiry') || '12/28',
+                iban: formData.get('iban') || '',
+                dailyLimit: parseFloat(formData.get('dailyLimit') as string) || 10000,
+                monthlyLimit: parseFloat(formData.get('monthlyLimit') as string) || 50000,
+                interestRate: parseFloat(formData.get('interestRate') as string) || 0.01,
+                accountStatus: formData.get('accountStatus') || 'active',
+                taxCleared: formData.get('taxCleared') === 'on',
+                overdraftProtection: formData.get('overdraftProtection') === 'on',
                 mockHistory: wantMockHistory && mockAmount > 0 ? {
                   totalAmount: mockAmount,
                   timeframe: mockTimeframe
@@ -150,12 +164,12 @@ export default function CreateAccountTab({
               return;
             }
             setFormError('');
-            setMessage(data.message);
+            setMessage(`Account created successfully for ${formData.get('email')}! Account ID: ${data.accountId}`);
             if (res.ok) {
-              e.currentTarget.reset();
+              form.reset();
               await loadAllAccounts();
             }
-            setTimeout(() => setMessage(''), 3000);
+            setTimeout(() => setMessage(''), 5000);
           }}>
             {userRole === 'superadmin' && (
               <div className="form-group">
@@ -179,8 +193,69 @@ export default function CreateAccountTab({
               <input name="password" type="password" required className="input" />
             </div>
             <div className="form-group">
-              <label className="label">INITIAL AMOUNT</label>
-              <input name="amount" type="number" placeholder="0.00" className="input" />
+              <label className="label">INITIAL CHECKING BALANCE</label>
+              <input name="amount" type="number" step="0.01" placeholder="0.00" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">SAVINGS BALANCE</label>
+              <input name="savingsBalance" type="number" step="0.01" placeholder="0.00" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">CREDIT CARD BALANCE</label>
+              <input name="creditBalance" type="number" step="0.01" placeholder="0.00" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">CREDIT LIMIT</label>
+              <input name="creditLimit" type="number" step="0.01" placeholder="5000" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">FICO SCORE (300-850)</label>
+              <input name="ficoScore" type="number" min="300" max="850" placeholder="750" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">REWARDS POINTS</label>
+              <input name="rewardsPoints" type="number" placeholder="0" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">CARD EXPIRY (MM/YY)</label>
+              <input name="cardExpiry" type="text" placeholder="12/28" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">IBAN</label>
+              <input name="iban" type="text" placeholder="" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">DAILY TRANSACTION LIMIT</label>
+              <input name="dailyLimit" type="number" step="0.01" placeholder="10000" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">MONTHLY TRANSACTION LIMIT</label>
+              <input name="monthlyLimit" type="number" step="0.01" placeholder="50000" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">INTEREST RATE (%)</label>
+              <input name="interestRate" type="number" step="0.01" placeholder="0.01" className="input" />
+            </div>
+            <div className="form-group">
+              <label className="label">ACCOUNT STATUS</label>
+              <select name="accountStatus" className="input" defaultValue="active">
+                <option value="active">Active</option>
+                <option value="frozen">Frozen</option>
+                <option value="suspended">Suspended</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input type="checkbox" id="taxCleared" name="taxCleared" defaultChecked style={{ width: '16px', height: '16px' }} />
+                <label htmlFor="taxCleared" className="label" style={{ marginBottom: 0 }}>TAX CLEARED</label>
+              </div>
+            </div>
+            <div className="form-group">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input type="checkbox" id="overdraftProtection" name="overdraftProtection" defaultChecked style={{ width: '16px', height: '16px' }} />
+                <label htmlFor="overdraftProtection" className="label" style={{ marginBottom: 0 }}>OVERDRAFT PROTECTION</label>
+              </div>
             </div>
             <div className="form-group">
               <label className="label">USER LIMIT (Admin only)</label>

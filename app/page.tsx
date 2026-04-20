@@ -779,7 +779,8 @@ export default function HomePage() {
                         outline: 'none',
                         backgroundColor: 'transparent',
                         transition: 'all 0.3s ease',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        color: '#1a1a1a'
                       }}
                       onFocus={(e) => {
                         e.target.style.borderBottomColor = '#0066CC';
@@ -842,7 +843,8 @@ export default function HomePage() {
                         outline: 'none',
                         backgroundColor: 'transparent',
                         transition: 'all 0.3s ease',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        color: '#1a1a1a'
                       }}
                       onFocus={(e) => {
                         e.target.style.borderBottomColor = '#0066CC';

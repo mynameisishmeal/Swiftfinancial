@@ -4,7 +4,7 @@ import { generateMockTransactions, MockHistoryOptions } from '@/lib/mockHistory'
 
 export async function POST(req: NextRequest) {
   try {
-    const { adminEmail, name, email, password, initialAmount, avatar, role, userLimit, savingsBalance, creditBalance, cardExpiry, rewardsPoints, ficoScore, zellePending, inboxCount, productsCount, notificationsCount, taxCleared, mockHistory } = await req.json();
+    const { adminEmail, name, email, password, initialAmount, avatar, role, userLimit, savingsBalance, creditBalance, creditLimit, ficoScore, rewardsPoints, cardExpiry, iban, dailyLimit, monthlyLimit, interestRate, accountStatus, taxCleared, overdraftProtection, zellePending, inboxCount, productsCount, notificationsCount, mockHistory } = await req.json();
     
     const client = await clientPromise;
     const db = client.db('habank');
@@ -59,17 +59,24 @@ export async function POST(req: NextRequest) {
       password,
       avatar: avatar || '',
       balance,
-      savingsBalance: savingsBalance || balance * 0.15,
-      creditBalance: creditBalance || balance * 0.3,
-      cardExpiry: cardExpiry || '12/28',
+      savingsBalance: savingsBalance || 0,
+      creditBalance: creditBalance || 0,
+      creditLimit: creditLimit || 5000,
+      ficoScore: ficoScore || 750,
       rewardsPoints: rewardsPoints || 0,
-      ficoScore: ficoScore || 734,
+      cardExpiry: cardExpiry || '12/28',
+      iban: iban || '',
+      dailyLimit: dailyLimit || 10000,
+      monthlyLimit: monthlyLimit || 50000,
+      interestRate: interestRate || 0.01,
+      accountStatus: accountStatus || 'active',
+      overdraftProtection: overdraftProtection !== undefined ? overdraftProtection : true,
       zellePending: zellePending || 0,
       inboxCount: inboxCount || 9,
       productsCount: productsCount || 9,
       notificationsCount: notificationsCount || 4,
       transactions,
-      taxCleared: taxCleared !== undefined ? taxCleared : false,
+      taxCleared: taxCleared !== undefined ? taxCleared : true,
       role: role || 'user',
       userLimit: role === 'admin' ? (userLimit || 1) : undefined,
       createdBy: adminEmail,

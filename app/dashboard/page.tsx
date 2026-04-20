@@ -146,10 +146,10 @@ export default function Dashboard() {
     const data = await res.json();
     if (data.balance !== undefined) {
       setBalance(data.balance);
-      setSavingsBalance(data.balance * 0.15);
-      setCreditBalance(data.balance * 0.3);
+      setSavingsBalance(data.savingsBalance || 0);
+      setCreditBalance(data.creditBalance || 0);
       setAccountId(data.accountId);
-      setIban(data.iban);
+      setIban(data.iban || '');
       setAvatar(data.avatar);
       setTaxCleared(data.taxCleared !== false);
       const capitalizedName = data.name.split(' ').map((word: string) => 
