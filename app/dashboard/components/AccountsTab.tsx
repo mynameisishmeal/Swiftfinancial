@@ -1,9 +1,10 @@
 import { ChevronRight, ChevronUp } from 'lucide-react';
+import CreditCard from './CreditCard';
 
 export default function AccountsTab({ 
   name, balance, savingsBalance, creditBalance, accountId, iban, taxCleared, cardFlipped, 
   bankingExpanded, expandedAccount, setActiveTab, setActiveNav, setBankingExpanded, 
-  setExpandedAccount, setCardFlipped, downloadStatement, showToast 
+  setExpandedAccount, setCardFlipped, downloadStatement, showToast, transactionPin 
 }: any) {
   return (
     <>
@@ -129,49 +130,7 @@ export default function AccountsTab({
             </div>
             {expandedAccount === 'credit' && (
               <div className="account-details">
-                <div className="credit-card-container" onClick={(e) => { e.stopPropagation(); setCardFlipped(!cardFlipped); }}>
-                  <div className="credit-card-3d" style={{ transform: cardFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
-                    <div className="card-face">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
-                        <div style={{ flexShrink: 0 }}><img src="/assets/BofA_rgb.png" alt="Swift Financial" style={{ height: '20px', display: 'block' }} /></div>
-                        <div style={{ fontSize: '28px', fontWeight: '700', fontStyle: 'italic', color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.3)', flexShrink: 0 }}>VISA</div>
-                      </div>
-                      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                        <img src="/assets/creditcardchip.jpg" alt="chip" style={{ width: '40px', height: '32px', borderRadius: '4px', marginBottom: '12px', objectFit: 'cover', flexShrink: 0 }} />
-                        <div style={{ fontSize: '18px', letterSpacing: '3px', marginBottom: '16px', fontFamily: 'Courier New, monospace', fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          4532  {(accountId.slice(-4) || '0000').padStart(4, '0')}  {(accountId.slice(-8, -4) || '0000').padStart(4, '0')}  {(accountId.slice(-12, -8) || '0000').padStart(4, '0')}
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexShrink: 0 }}>
-                          <div style={{ minWidth: 0, flex: 1, marginRight: '12px' }}>
-                            <div style={{ fontSize: '8px', opacity: 0.9, marginBottom: '2px', letterSpacing: '1px' }}>CARD HOLDER</div>
-                            <div style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
-                          </div>
-                          <div style={{ flexShrink: 0 }}>
-                            <div style={{ fontSize: '8px', opacity: 0.9, marginBottom: '2px', letterSpacing: '1px' }}>VALID THRU</div>
-                            <div style={{ fontSize: '12px', fontWeight: '600' }}>12/28</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="card-face back">
-                      <div style={{ width: '100%', height: '40px', background: '#000', marginTop: '20px', flexShrink: 0 }}></div>
-                      <div style={{ padding: '12px 0', flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                        <div style={{ background: '#e5e7eb', height: '35px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '12px', marginBottom: '12px', flexShrink: 0 }}>
-                          <div style={{ background: 'white', padding: '4px 10px', borderRadius: '4px', fontSize: '14px', fontWeight: '700', color: '#1f2937', letterSpacing: '2px', fontStyle: 'italic' }}>***</div>
-                        </div>
-                        <div style={{ fontSize: '8px', color: 'white', opacity: 0.9, marginBottom: '8px', lineHeight: '1.3', flexShrink: 0 }}>
-                          This card is property of Swift Financial. If found, please return to any branch or call 1-800-432-1000.
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-                          <div style={{ fontSize: '8px', color: 'white', opacity: 0.8 }}>Customer Service: 1-800-432-1000</div>
-                          <div style={{ background: 'white', padding: '3px 6px', borderRadius: '3px', flexShrink: 0 }}>
-                            <img src="/assets/BofA_rgb.png" alt="Swift Financial" style={{ height: '10px', display: 'block' }} />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <CreditCard accountId={accountId} name={name} transactionPin={transactionPin} />
                 <div className="detail-buttons">
                   <button className="detail-btn" onClick={(e) => { e.stopPropagation(); setActiveTab('transfer'); setActiveNav('transfer'); }}>Pay Card</button>
                   <button className="detail-btn" onClick={(e) => { e.stopPropagation(); showToast('You have 15,000 rewards points', 'success'); }}>Rewards</button>

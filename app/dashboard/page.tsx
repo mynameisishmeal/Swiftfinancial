@@ -16,9 +16,11 @@ import TopNavigation from './components/TopNavigation';
 import EricaModal from './components/EricaModal';
 import { MenuOverlay, BottomNav } from './components/Navigation';
 import ReceiptModal from './components/ReceiptModal';
+import PinModal from './components/PinModal';
 import { payeeList, bankList } from './constants/lists';
 
 export default function Dashboard() {
+  const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [accountId, setAccountId] = useState('');
@@ -71,6 +73,9 @@ export default function Dashboard() {
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [transactionPin, setTransactionPin] = useState('');
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pendingTransferAction, setPendingTransferAction] = useState<(() => void) | null>(null);
   const router = useRouter();
 
   const filteredPayees = payeeSearch.length > 0
@@ -84,14 +89,36 @@ export default function Dashboard() {
   useEffect(() => {
     const userEmail = localStorage.getItem('userEmail');
     const role = localStorage.getItem('userRole');
+    
     if (!userEmail || role !== 'user') {
       router.push('/');
       return;
     }
+    
     setEmail(userEmail);
+    setIsLoading(false);
     loadAccount(userEmail);
     loadNotifications(userEmail);
-  }, []);
+
+    // Check account status every 10 seconds
+    const accountCheckInterval = setInterval(async () => {
+      const res = await fetch(`/api/accounts?email=${userEmail}`);
+      if (!res.ok) {
+        const data = await res.json();
+        if (data.accountDeleted || res.status === 404) {
+          clearInterval(accountCheckInterval);
+          showToast('Your account has been deleted. Redirecting to login...', 'error');
+          setTimeout(() => {
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userRole');
+            router.push('/');
+          }, 2000);
+        }
+      }
+    }, 10000);
+
+    return () => clearInterval(accountCheckInterval);
+  }, [router]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -145,6 +172,18 @@ export default function Dashboard() {
 
   const loadAccount = async (userEmail: string) => {
     const res = await fetch(`/api/accounts?email=${userEmail}`);
+    if (!res.ok) {
+      const data = await res.json();
+      if (data.accountDeleted || res.status === 404) {
+        showToast('Your account has been deleted. Please contact support.', 'error');
+        setTimeout(() => {
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userRole');
+          router.push('/');
+        }, 2000);
+        return;
+      }
+    }
     const data = await res.json();
     if (data.balance !== undefined) {
       setBalance(data.balance);
@@ -154,14 +193,17 @@ export default function Dashboard() {
       setIban(data.iban || '');
       setAvatar(data.avatar);
       setTaxCleared(data.taxCleared !== false);
+      setTransactionPin(data.transactionPin || '');
       const capitalizedName = data.name.split(' ').map((word: string) => 
         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
       ).join(' ');
       setName(capitalizedName);
       
       const txRes = await fetch(`/api/accounts?email=${userEmail}&transactions=true`);
-      const txData = await txRes.json();
-      if (txData.transactions) setTransactions(txData.transactions);
+      if (txRes.ok) {
+        const txData = await txRes.json();
+        if (txData.transactions) setTransactions(txData.transactions);
+      }
     }
   };
 
@@ -190,6 +232,15 @@ export default function Dashboard() {
       showToast('Insufficient funds', 'error');
       return;
     }
+    if (transactionPin) {
+      setPendingTransferAction(() => executeTransfer);
+      setShowPinModal(true);
+      return;
+    }
+    executeTransfer();
+  };
+
+  const executeTransfer = async () => {
     setPaymentLoading(true);
     const res = await fetch('/api/accounts', {
       method: 'PUT',
@@ -227,6 +278,15 @@ export default function Dashboard() {
       showToast('Insufficient funds', 'error');
       return;
     }
+    if (transactionPin) {
+      setPendingTransferAction(() => executeBillPay);
+      setShowPinModal(true);
+      return;
+    }
+    executeBillPay();
+  };
+
+  const executeBillPay = async () => {
     setPaymentLoading(true);
     const res = await fetch('/api/accounts', {
       method: 'PUT',
@@ -269,6 +329,15 @@ export default function Dashboard() {
       showToast('Insufficient funds', 'error');
       return;
     }
+    if (transactionPin) {
+      setPendingTransferAction(() => executeZelle);
+      setShowPinModal(true);
+      return;
+    }
+    executeZelle();
+  };
+
+  const executeZelle = async () => {
     setPaymentLoading(true);
     const res = await fetch('/api/accounts', {
       method: 'PUT',
@@ -311,6 +380,15 @@ export default function Dashboard() {
       showToast('Insufficient funds', 'error');
       return;
     }
+    if (transactionPin) {
+      setPendingTransferAction(() => executeWire);
+      setShowPinModal(true);
+      return;
+    }
+    executeWire();
+  };
+
+  const executeWire = async () => {
     setPaymentLoading(true);
     const res = await fetch('/api/accounts', {
       method: 'PUT',
@@ -624,6 +702,22 @@ Swift Financial, N.A. Member FDIC.
   };
 
   return (
+    <>
+      {isLoading ? (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          background: '#F4F4F4'
+        }}>
+          <div style={{
+            fontSize: '18px',
+            color: '#6b7280',
+            fontWeight: '600'
+          }}>Loading...</div>
+        </div>
+      ) : (
     <>
       <style jsx>{`
         * {
@@ -1249,7 +1343,7 @@ Swift Financial, N.A. Member FDIC.
             style={{ display: 'none' }}
           />
 
-          {activeTab === 'accounts' && <AccountsTab name={name} balance={balance} savingsBalance={savingsBalance} creditBalance={creditBalance} accountId={accountId} iban={iban} taxCleared={taxCleared} cardFlipped={cardFlipped} bankingExpanded={bankingExpanded} expandedAccount={expandedAccount} setActiveTab={setActiveTab} setActiveNav={setActiveNav} setBankingExpanded={setBankingExpanded} setExpandedAccount={setExpandedAccount} setCardFlipped={setCardFlipped} downloadStatement={downloadStatement} showToast={showToast} />}
+          {activeTab === 'accounts' && <AccountsTab name={name} balance={balance} savingsBalance={savingsBalance} creditBalance={creditBalance} accountId={accountId} iban={iban} taxCleared={taxCleared} cardFlipped={cardFlipped} bankingExpanded={bankingExpanded} expandedAccount={expandedAccount} setActiveTab={setActiveTab} setActiveNav={setActiveNav} setBankingExpanded={setBankingExpanded} setExpandedAccount={setExpandedAccount} setCardFlipped={setCardFlipped} downloadStatement={downloadStatement} showToast={showToast} transactionPin={transactionPin} />}
 
           {activeTab === 'dashboard' && <DashboardTab balance={balance} savingsBalance={savingsBalance} creditBalance={creditBalance} accountId={accountId} name={name} email={email} taxCleared={taxCleared} iban={iban} setActiveTab={setActiveTab} setActiveNav={setActiveNav} setPaymentType={setPaymentType} />}
 
@@ -1287,8 +1381,29 @@ Swift Financial, N.A. Member FDIC.
 
         {/* Receipt Modal */}
         <ReceiptModal showReceipt={showReceipt} setShowReceipt={setShowReceipt} receiptData={receiptData} showToast={showToast} />
+
+        {/* PIN Modal */}
+        <PinModal 
+          show={showPinModal} 
+          onClose={() => {
+            setShowPinModal(false);
+            setPendingTransferAction(null);
+          }} 
+          onVerify={() => {
+            setShowPinModal(false);
+            if (pendingTransferAction) {
+              pendingTransferAction();
+              setPendingTransferAction(null);
+            }
+          }} 
+          transactionPin={transactionPin}
+          title="Enter Transaction PIN"
+          subtitle="Enter your 4-digit PIN to authorize this transaction"
+        />
         </div>
       </div>
+    </>
+      )}
     </>
   );
 }

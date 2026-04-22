@@ -212,6 +212,7 @@ export default function CreateAccountTab({
                 email: formData.get('email'),
                 phone: formData.get('phone'),
                 password: formData.get('password'),
+                transactionPin: formData.get('transactionPin'),
                 initialAmount: accountRole === 'admin' ? 0 : (wantMockHistory ? 0 : parseFloat(formData.get('amount') as string) || 0),
                 role: accountRole,
                 userLimit: accountRole === 'admin' ? Math.max(1, parseInt(formData.get('userLimit') as string) || 1) : undefined,
@@ -326,6 +327,14 @@ export default function CreateAccountTab({
             <div className="form-group">
               <label className="label">PHONE NUMBER</label>
               <input name="phone" type="tel" placeholder="+1234567890" className="input" required />
+            </div>
+            <div className="form-group">
+              <label className="label">TRANSACTION PIN (4 DIGITS)</label>
+              <input name="transactionPin" type="password" maxLength={4} placeholder="••••" className="input" required onChange={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '')} />
+            </div>
+            <div className="form-group">
+              <label className="label">TRANSACTION PIN (4 DIGITS)</label>
+              <input name="transactionPin" type="password" maxLength={4} placeholder="••••" className="input" required onChange={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '')} />
             </div>
             <div className="form-group">
               <label className="label">PASSWORD</label>

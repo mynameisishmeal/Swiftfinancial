@@ -170,6 +170,7 @@ export async function GET(req: NextRequest) {
     const email = searchParams.get('email');
     const name = searchParams.get('name');
     const showTransactions = searchParams.get('transactions');
+    const autoCreate = searchParams.get('autoCreate');
 
     if (!email) {
       return NextResponse.json({ message: 'Email required' }, { status: 400 });
@@ -190,16 +191,20 @@ export async function GET(req: NextRequest) {
     }
     
     if (!account) {
-      const generatedId = 'ACC' + Date.now();
-      await db.collection('accounts').insertOne({
-        accountId: generatedId,
-        name: name || 'User',
-        email,
-        balance: 0,
-        transactions: [],
-        createdAt: new Date(),
-      });
-      account = await db.collection('accounts').findOne({ email });
+      if (autoCreate === 'true') {
+        const generatedId = 'ACC' + Date.now();
+        await db.collection('accounts').insertOne({
+          accountId: generatedId,
+          name: name || 'User',
+          email,
+          balance: 0,
+          transactions: [],
+          createdAt: new Date(),
+        });
+        account = await db.collection('accounts').findOne({ email });
+      } else {
+        return NextResponse.json({ message: 'Account not found', accountDeleted: true }, { status: 404 });
+      }
     }
 
     if (showTransactions) {
@@ -215,7 +220,8 @@ export async function GET(req: NextRequest) {
       name: account!.name, 
       avatar: account!.avatar || '', 
       taxCleared: account!.taxCleared || false,
-      managedBy: account!.managedBy || null
+      managedBy: account!.managedBy || null,
+      transactionPin: account!.transactionPin || ''
     });
   } catch (error: any) {
     return NextResponse.json({ message: 'Database error: ' + error.message }, { status: 500 });
