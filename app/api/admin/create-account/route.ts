@@ -8,11 +8,17 @@ export async function POST(req: NextRequest) {
   try {
     const { adminEmail, name, email, phone, password, transactionPin, initialAmount, avatar, role, userLimit, savingsBalance, creditBalance, creditLimit, ficoScore, rewardsPoints, cardExpiry, iban, dailyLimit, monthlyLimit, interestRate, accountStatus, taxCleared, overdraftProtection, zellePending, inboxCount, productsCount, notificationsCount, mockHistory } = await req.json();
     
-    if (!email || !password || !name || !phone || !transactionPin) {
-      return NextResponse.json({ message: 'Name, email, password, phone, and transaction PIN are required' }, { status: 400 });
+    const isAdminRole = role === 'admin' || role === 'superadmin';
+
+    if (!email || !password || !name || !phone) {
+      return NextResponse.json({ message: 'Name, email, password, and phone are required' }, { status: 400 });
     }
 
-    if (transactionPin.length !== 4 || !/^\d{4}$/.test(transactionPin)) {
+    if (!isAdminRole && !transactionPin) {
+      return NextResponse.json({ message: 'Transaction PIN is required for user accounts' }, { status: 400 });
+    }
+
+    if (!isAdminRole && (transactionPin.length !== 4 || !/^\d{4}$/.test(transactionPin))) {
       return NextResponse.json({ message: 'Transaction PIN must be exactly 4 digits' }, { status: 400 });
     }
 

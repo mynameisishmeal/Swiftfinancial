@@ -208,7 +208,7 @@ export default function CreateAccountTab({
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 adminEmail: userEmail,
-                name: formData.get('email')?.toString().split('@')[0],
+                name: formData.get('name') || formData.get('email')?.toString().split('@')[0],
                 email: formData.get('email'),
                 phone: formData.get('phone'),
                 password: formData.get('password'),
@@ -264,6 +264,10 @@ export default function CreateAccountTab({
             )}
             {accountRole === 'admin' ? (
               <>
+                <div className="form-group">
+                  <label className="label">FULL NAME</label>
+                  <input name="name" type="text" required className="input" placeholder="Admin Name" />
+                </div>
                 <div className="form-group">
                   <label className="label">ADMIN EMAIL</label>
                   <input name="email" type="email" required className="input" />
