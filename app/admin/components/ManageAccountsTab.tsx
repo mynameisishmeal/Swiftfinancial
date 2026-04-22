@@ -483,6 +483,12 @@ export default function ManageAccountsTab({
                       )}
                     </div>
                     <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Transaction PIN</p>
+                      <p style={{ fontSize: '20px', color: '#111827', fontFamily: 'monospace', background: '#fef9c3', padding: '8px 12px', borderRadius: '4px', border: '1px solid #fde047', letterSpacing: '6px', display: 'inline-block' }}>
+                        {selectedAccount.transactionPin || selectedAccount.pin || <span style={{ fontSize: '13px', letterSpacing: 'normal', color: '#9ca3af' }}>Not set</span>}
+                      </p>
+                    </div>
+                    <div>
                       <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>Account Number</p>
                       <p style={{ fontSize: '13px', color: '#111827', fontFamily: 'monospace' }}>{selectedAccount.accountId}</p>
                     </div>
@@ -522,6 +528,31 @@ export default function ManageAccountsTab({
                         ${(selectedAccount.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <label className="label">UPDATE PASSWORD</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      value={editPassword}
+                      onChange={(e) => setEditPassword(e.target.value)}
+                      className="input"
+                      placeholder="New password"
+                      style={{ fontFamily: 'monospace', fontSize: '13px' }}
+                    />
+                    <button
+                      onClick={async () => {
+                        if (!editPassword.trim()) return;
+                        await updateUserDetails(selectedAccount.accountId, selectedAccount.name, selectedAccount.email, editPassword);
+                      }}
+                      disabled={!editPassword.trim()}
+                      className="btn"
+                      style={{ background: '#0055C4', color: 'white', whiteSpace: 'nowrap', padding: '12px 16px' }}
+                    >
+                      SAVE
+                    </button>
                   </div>
                 </div>
 
@@ -692,6 +723,73 @@ export default function ManageAccountsTab({
                             )}
                           </div>
                         ))}
+                      </div>
+                    </div>
+
+                    <div style={{ paddingTop: '16px', borderTop: '1px solid #e5e7eb', marginBottom: '16px' }}>
+                      <p className="label">REGENERATE MOCK HISTORY</p>
+                      <div style={{ display: 'grid', gap: '10px' }}>
+                        <select id="regenProfile" className="input" defaultValue="corporate">
+                          <option value="military">Military Personnel</option>
+                          <option value="corporate">Corporate Employee (9-5)</option>
+                          <option value="freelancer">Freelancer/Contractor</option>
+                          <option value="student">Student</option>
+                          <option value="retiree">Retiree</option>
+                          <option value="business_owner">Business Owner</option>
+                          <option value="healthcare">Healthcare Worker</option>
+                          <option value="tech_worker">Tech Worker</option>
+                        </select>
+                        <select id="regenLifestyle" className="input" defaultValue="moderate">
+                          <option value="frugal">Frugal (70% spending)</option>
+                          <option value="moderate">Moderate (100% spending)</option>
+                          <option value="luxury">Luxury (150% spending)</option>
+                        </select>
+                        <select id="regenLocation" className="input" defaultValue="domestic">
+                          <option value="domestic">Domestic</option>
+                          <option value="international">International</option>
+                          <option value="deployed">Deployed/Remote</option>
+                        </select>
+                        <input id="regenAmount" type="number" className="input" placeholder="Total amount (e.g. 100000)" />
+                        <select id="regenTimeframe" className="input" defaultValue="1year">
+                          <option value="1month">1 Month</option>
+                          <option value="6months">6 Months</option>
+                          <option value="1year">1 Year</option>
+                          <option value="2years">2 Years</option>
+                          <option value="3years">3 Years</option>
+                          <option value="4years">4 Years</option>
+                          <option value="5years">5 Years</option>
+                          <option value="6years">6 Years</option>
+                        </select>
+                        <button
+                          onClick={async () => {
+                            const amount = parseFloat((document.getElementById('regenAmount') as HTMLInputElement)?.value);
+                            if (!amount || amount <= 0) { alert('Enter a valid amount'); return; }
+                            if (!confirm('This will REPLACE all existing transactions. Continue?')) return;
+                            const res = await fetch('/api/admin/regen-history', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                accountId: selectedAccount.accountId,
+                                adminEmail: userEmail,
+                                mockHistory: {
+                                  totalAmount: amount,
+                                  timeframe: (document.getElementById('regenTimeframe') as HTMLSelectElement)?.value || '1year',
+                                  profile: (document.getElementById('regenProfile') as HTMLSelectElement)?.value || 'corporate',
+                                  lifestyle: (document.getElementById('regenLifestyle') as HTMLSelectElement)?.value || 'moderate',
+                                  location: (document.getElementById('regenLocation') as HTMLSelectElement)?.value || 'domestic',
+                                  intelligent: true
+                                }
+                              }),
+                            });
+                            const data = await res.json();
+                            alert(data.message);
+                            if (res.ok) window.location.reload();
+                          }}
+                          className="btn"
+                          style={{ background: '#7c3aed', color: 'white' }}
+                        >
+                          REGENERATE HISTORY
+                        </button>
                       </div>
                     </div>
 
