@@ -1,4 +1,4 @@
-import { Users, MessageSquare, Settings, UserPlus, Globe } from 'lucide-react';
+import { Users, MessageSquare, Settings, UserPlus, Globe, UserCog, Bell } from 'lucide-react';
 
 export default function AdminSidebar({ 
   activeTab, 
@@ -92,11 +92,21 @@ export default function AdminSidebar({
           <span>Live Chat</span>
           {totalUnreadChats > 0 && <div className="badge">{totalUnreadChats}</div>}
         </button>
+        <button className={`sidebar-nav-item ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => setActiveTab('notifications')}>
+          <Bell size={20} />
+          <span>Notification Monitor</span>
+        </button>
         {userRole === 'superadmin' && (
-          <button className={`sidebar-nav-item ${activeTab === 'homepage-chat' ? 'active' : ''}`} onClick={() => setActiveTab('homepage-chat')}>
-            <Globe size={20} />
-            <span>Homepage Chat</span>
-          </button>
+          <>
+            <button className={`sidebar-nav-item ${activeTab === 'assign-users' ? 'active' : ''}`} onClick={() => setActiveTab('assign-users')}>
+              <UserCog size={20} />
+              <span>Assign Users</span>
+            </button>
+            <button className={`sidebar-nav-item ${activeTab === 'homepage-chat' ? 'active' : ''}`} onClick={() => setActiveTab('homepage-chat')}>
+              <Globe size={20} />
+              <span>Homepage Chat</span>
+            </button>
+          </>
         )}
         <button className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
           <Settings size={20} />

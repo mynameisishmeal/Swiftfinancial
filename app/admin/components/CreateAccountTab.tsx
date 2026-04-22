@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function CreateAccountTab({ 
   userEmail, 
   userRole, 
@@ -8,6 +10,32 @@ export default function CreateAccountTab({
   setClaimIdentifier,
   claimUser
 }: any) {
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [accountRole, setAccountRole] = React.useState('user');
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  const [successMessage, setSuccessMessage] = React.useState('');
+  
+  const autofillForm = () => {
+    const form = document.getElementById('create-account-form') as HTMLFormElement;
+    if (form) {
+      (form.elements.namedItem('name') as HTMLInputElement).value = 'John Doe';
+      (form.elements.namedItem('email') as HTMLInputElement).value = `user${Date.now()}@example.com`;
+      (form.elements.namedItem('phone') as HTMLInputElement).value = '+1234567890';
+      (form.elements.namedItem('password') as HTMLInputElement).value = 'Password123';
+      (form.elements.namedItem('amount') as HTMLInputElement).value = '5000';
+      (form.elements.namedItem('savingsBalance') as HTMLInputElement).value = '10000';
+      (form.elements.namedItem('creditBalance') as HTMLInputElement).value = '0';
+      (form.elements.namedItem('creditLimit') as HTMLInputElement).value = '5000';
+      (form.elements.namedItem('ficoScore') as HTMLInputElement).value = '750';
+      (form.elements.namedItem('rewardsPoints') as HTMLInputElement).value = '1000';
+      (form.elements.namedItem('cardExpiry') as HTMLInputElement).value = '12/28';
+      (form.elements.namedItem('iban') as HTMLInputElement).value = 'US12345678901234567890';
+      (form.elements.namedItem('dailyLimit') as HTMLInputElement).value = '10000';
+      (form.elements.namedItem('monthlyLimit') as HTMLInputElement).value = '50000';
+      (form.elements.namedItem('interestRate') as HTMLInputElement).value = '0.01';
+    }
+  };
+  
   return (
     <>
       <style jsx>{`
@@ -78,42 +106,87 @@ export default function CreateAccountTab({
         .form-group {
           margin-bottom: 16px;
         }
+
+        @keyframes scaleIn {
+          from {
+            transform: translate(-50%, -50%) scale(0.8);
+            opacity: 0;
+          }
+          to {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+        }
       `}</style>
 
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title">Claim User to Manage</h3>
-        </div>
-        <div className="card-content">
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
-            <input
-              type="text"
-              value={claimIdentifier}
-              onChange={(e) => setClaimIdentifier(e.target.value)}
-              placeholder="Enter Account Number or Email"
-              className="input"
-              style={{ flex: 1 }}
-            />
-            <button
-              onClick={() => {
-                claimUser(claimIdentifier);
-                setClaimIdentifier('');
-              }}
-              disabled={!claimIdentifier}
-              className="btn btn-primary"
-            >
-              CLAIM USER
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 className="card-title">Create New Account</h3>
+            {accountRole === 'user' && (
+              <button
+                type="button"
+                onClick={autofillForm}
+                style={{ padding: '8px 16px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                AUTOFILL
+              </button>
+            )}
           </div>
-          <p style={{ fontSize: '12px', color: '#6b7280' }}>Assign a user to yourself by their account number or email</p>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="card-header">
-          <h3 className="card-title">Create New Account</h3>
         </div>
         <div className="card-content">
+          {showSuccess && (
+            <div style={{ 
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 9999,
+              background: 'white',
+              padding: '32px',
+              borderRadius: '16px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+              minWidth: '400px',
+              maxWidth: '90%',
+              animation: 'scaleIn 0.3s ease-out'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#065f46', marginBottom: '12px' }}>Success!</div>
+                <div style={{ fontSize: '14px', color: '#047857', marginBottom: '24px', lineHeight: '1.6' }}>{successMessage}</div>
+                <button
+                  onClick={() => setShowSuccess(false)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
+          {showSuccess && (
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0,0,0,0.5)',
+                zIndex: 9998
+              }}
+              onClick={() => setShowSuccess(false)}
+            />
+          )}
           <div style={{ padding: '12px', marginBottom: '16px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', fontSize: '13px', color: '#0369a1' }}>
             ℹ️ No Google verification required. Fill out the form below to create a new account directly.
           </div>
@@ -126,14 +199,18 @@ export default function CreateAccountTab({
             const wantMockHistory = formData.get('wantMockHistory') === 'on';
             const mockAmount = parseFloat(formData.get('mockAmount') as string) || 0;
             const mockTimeframe = formData.get('mockTimeframe') as string;
+            const userProfile = formData.get('userProfile') as string;
+            const lifestyle = formData.get('lifestyle') as string;
+            const location = formData.get('location') as string;
             
             const res = await fetch('/api/admin/create-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 adminEmail: userEmail,
-                name: accountRole === 'admin' ? formData.get('email')?.toString().split('@')[0] : formData.get('name'),
+                name: formData.get('email')?.toString().split('@')[0],
                 email: formData.get('email'),
+                phone: formData.get('phone'),
                 password: formData.get('password'),
                 initialAmount: accountRole === 'admin' ? 0 : (wantMockHistory ? 0 : parseFloat(formData.get('amount') as string) || 0),
                 role: accountRole,
@@ -153,7 +230,11 @@ export default function CreateAccountTab({
                 overdraftProtection: formData.get('overdraftProtection') === 'on',
                 mockHistory: wantMockHistory && mockAmount > 0 ? {
                   totalAmount: mockAmount,
-                  timeframe: mockTimeframe
+                  timeframe: mockTimeframe,
+                  profile: userProfile,
+                  lifestyle: lifestyle,
+                  location: location,
+                  intelligent: true
                 } : null
               }),
             });
@@ -164,22 +245,76 @@ export default function CreateAccountTab({
               return;
             }
             setFormError('');
-            setMessage(`Account created successfully for ${formData.get('email')}! Account ID: ${data.accountId}`);
-            if (res.ok) {
-              form.reset();
-              await loadAllAccounts();
-            }
-            setTimeout(() => setMessage(''), 5000);
+            setSuccessMessage(`Account created successfully for ${formData.get('email')}! Account ID: ${data.accountId}`);
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 5000);
+            form.reset();
+            setAccountRole('user');
+            await loadAllAccounts();
           }}>
             {userRole === 'superadmin' && (
               <div className="form-group">
                 <label className="label">ACCOUNT TYPE</label>
-                <select name="accountRole" className="input" defaultValue="user">
+                <select name="accountRole" className="input" value={accountRole} onChange={(e) => setAccountRole(e.target.value)}>
                   <option value="user">User Account</option>
                   <option value="admin">Admin Account</option>
                 </select>
               </div>
             )}
+            {accountRole === 'admin' ? (
+              <>
+                <div className="form-group">
+                  <label className="label">ADMIN EMAIL</label>
+                  <input name="email" type="email" required className="input" />
+                </div>
+                <div className="form-group">
+                  <label className="label">PHONE NUMBER</label>
+                  <input name="phone" type="tel" placeholder="+1234567890" className="input" required />
+                </div>
+                <div className="form-group">
+                  <label className="label">PASSWORD</label>
+                  <div style={{ position: 'relative' }}>
+                    <input name="password" type={showPassword ? 'text' : 'password'} required className="input" style={{ paddingRight: '40px' }} />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '8px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#6b7280'
+                      }}
+                    >
+                      {showPassword ? (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                          <line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="label">USER LIMIT</label>
+                  <input name="userLimit" type="number" min="1" placeholder="10" defaultValue="10" className="input" required />
+                </div>
+              </>
+            ) : (
+              // Full user form
+              <>
             <div className="form-group">
               <label className="label">FULL NAME</label>
               <input name="name" className="input" required />
@@ -189,8 +324,44 @@ export default function CreateAccountTab({
               <input name="email" type="email" required className="input" />
             </div>
             <div className="form-group">
+              <label className="label">PHONE NUMBER</label>
+              <input name="phone" type="tel" placeholder="+1234567890" className="input" required />
+            </div>
+            <div className="form-group">
               <label className="label">PASSWORD</label>
-              <input name="password" type="password" required className="input" />
+              <div style={{ position: 'relative' }}>
+                <input name="password" type={showPassword ? 'text' : 'password'} required className="input" style={{ paddingRight: '40px' }} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#6b7280'
+                  }}
+                >
+                  {showPassword ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
             <div className="form-group">
               <label className="label">INITIAL CHECKING BALANCE</label>
@@ -261,6 +432,7 @@ export default function CreateAccountTab({
               <label className="label">USER LIMIT (Admin only)</label>
               <input name="userLimit" type="number" min="1" placeholder="1" className="input" />
             </div>
+            </>)}
             <div className="form-group" style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <input
@@ -274,17 +446,46 @@ export default function CreateAccountTab({
                   style={{ width: '16px', height: '16px' }}
                 />
                 <label htmlFor="wantMockHistory" className="label" style={{ marginBottom: 0 }}>
-                  ADD MOCK TRANSACTION HISTORY
+                  ADD INTELLIGENT TRANSACTION HISTORY
                 </label>
               </div>
               <div id="mockHistoryFields" style={{ display: 'none', marginLeft: '24px' }}>
                 <div className="form-group">
+                  <label className="label">USER PROFILE</label>
+                  <select name="userProfile" className="input" defaultValue="corporate">
+                    <option value="military">Military Personnel</option>
+                    <option value="corporate">Corporate Employee (9-5)</option>
+                    <option value="freelancer">Freelancer/Contractor</option>
+                    <option value="student">Student</option>
+                    <option value="retiree">Retiree</option>
+                    <option value="business_owner">Business Owner</option>
+                    <option value="healthcare">Healthcare Worker</option>
+                    <option value="tech_worker">Tech Worker</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="label">LIFESTYLE</label>
+                  <select name="lifestyle" className="input" defaultValue="moderate">
+                    <option value="frugal">Frugal (70% spending)</option>
+                    <option value="moderate">Moderate (100% spending)</option>
+                    <option value="luxury">Luxury (150% spending)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="label">LOCATION TYPE</label>
+                  <select name="location" className="input" defaultValue="domestic">
+                    <option value="domestic">Domestic</option>
+                    <option value="international">International</option>
+                    <option value="deployed">Deployed/Remote</option>
+                  </select>
+                </div>
+                <div className="form-group">
                   <label className="label">TOTAL HISTORY AMOUNT</label>
-                  <input name="mockAmount" type="number" placeholder="e.g., 1000000 for $1M" className="input" />
+                  <input name="mockAmount" type="number" placeholder="e.g., 100000 for $100K" className="input" />
                 </div>
                 <div className="form-group">
                   <label className="label">HISTORY TIMEFRAME</label>
-                  <select name="mockTimeframe" className="input" defaultValue="6months">
+                  <select name="mockTimeframe" className="input" defaultValue="1year">
                     <option value="1month">1 Month</option>
                     <option value="6months">6 Months</option>
                     <option value="1year">1 Year</option>

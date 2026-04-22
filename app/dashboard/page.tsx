@@ -70,6 +70,7 @@ export default function Dashboard() {
   const [liveChatMessages, setLiveChatMessages] = useState<Array<{sender: 'user' | 'admin', message: string, timestamp: Date}>>([]);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const router = useRouter();
 
   const filteredPayees = payeeSearch.length > 0
@@ -89,6 +90,7 @@ export default function Dashboard() {
     }
     setEmail(userEmail);
     loadAccount(userEmail);
+    loadNotifications(userEmail);
   }, []);
 
   useEffect(() => {
@@ -160,6 +162,14 @@ export default function Dashboard() {
       const txRes = await fetch(`/api/accounts?email=${userEmail}&transactions=true`);
       const txData = await txRes.json();
       if (txData.transactions) setTransactions(txData.transactions);
+    }
+  };
+
+  const loadNotifications = async (userEmail: string) => {
+    const res = await fetch(`/api/admin/notifications?userEmail=${userEmail}`);
+    const data = await res.json();
+    if (data.notifications) {
+      setNotifications(data.notifications);
     }
   };
 
@@ -384,14 +394,15 @@ export default function Dashboard() {
   };
 
   const downloadStatement = () => {
+    const sanitize = (str: string) => String(str || '').replace(/[<>"'&]/g, '');
     const statement = `
 Swift Financial Account Statement
 ==================================
 
-Account Holder: ${name}
-Account Number: ${accountId}
-IBAN: ${iban}
-Email: ${email}
+Account Holder: ${sanitize(name)}
+Account Number: ${sanitize(accountId)}
+IBAN: ${sanitize(iban)}
+Email: ${sanitize(email)}
 Statement Date: ${new Date().toLocaleDateString()}
 
 Account Balances:
@@ -412,7 +423,7 @@ Transaction History (CSV Format):
 -------------------
 Date,Description,Type,Amount,Balance
 ${transactions.slice().reverse().map(t => 
-  `${new Date(t.date).toLocaleDateString()},"${(t.description || t.type.replace('_', ' ')).toUpperCase()}",${t.type},${(t.amount || 0).toFixed(2)},${(t.balance || 0).toFixed(2)}`
+  `${new Date(t.date).toLocaleDateString()},"${sanitize(t.description || t.type.replace('_', ' ')).toUpperCase()}",${sanitize(t.type)},${(t.amount || 0).toFixed(2)},${(t.balance || 0).toFixed(2)}`
 ).join('\n')}
 
 -------------------
@@ -426,7 +437,7 @@ Swift Financial, N.A. Member FDIC.
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `SFI_Statement_${accountId}_${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `SFI_Statement_${sanitize(accountId)}_${new Date().toISOString().split('T')[0]}.txt`;
     a.click();
     showToast('Statement downloaded successfully', 'success');
   };
@@ -1202,6 +1213,9 @@ Swift Financial, N.A. Member FDIC.
           router={router}
           handleAvatarChange={handleAvatarChange}
           logout={logout}
+          notifications={notifications}
+          email={email}
+          loadNotifications={loadNotifications}
         />
 
         {/* Erica AI Assistant Modal */}

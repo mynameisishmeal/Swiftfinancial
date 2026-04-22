@@ -13,12 +13,36 @@ export default function ManageAccountsTab({
   assignToSelf, 
   userRole, 
   loading,
-  updateUserDetails
+  updateUserDetails,
+  userEmail
 }: any) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [editName, setEditName] = React.useState('');
   const [editEmail, setEditEmail] = React.useState('');
   const [editPassword, setEditPassword] = React.useState('');
+  const [txType, setTxType] = React.useState('deposit');
+  const [txAmount, setTxAmount] = React.useState('');
+  const [txDescription, setTxDescription] = React.useState('');
+  const [txCategory, setTxCategory] = React.useState('Other');
+  const [editingTx, setEditingTx] = React.useState<number | null>(null);
+  const [editBalance, setEditBalance] = React.useState('');
+  const [editChecking, setEditChecking] = React.useState('');
+  const [editSavings, setEditSavings] = React.useState('');
+  const [editCredit, setEditCredit] = React.useState('');
+  const [editFico, setEditFico] = React.useState('');
+  const [editRewards, setEditRewards] = React.useState('');
+  const [editDaily, setEditDaily] = React.useState('');
+  const [editMonthly, setEditMonthly] = React.useState('');
+  const [editInterest, setEditInterest] = React.useState('');
+  const [showFinancials, setShowFinancials] = React.useState(false);
+  const [editAvatar, setEditAvatar] = React.useState('');
+  const [editIban, setEditIban] = React.useState('');
+  const [editCardExpiry, setEditCardExpiry] = React.useState('');
+  const [editTxType, setEditTxType] = React.useState('');
+  const [editTxAmount, setEditTxAmount] = React.useState('');
+  const [editTxDescription, setEditTxDescription] = React.useState('');
+  const [editTxCategory, setEditTxCategory] = React.useState('');
+  const [editTxDate, setEditTxDate] = React.useState('');
 
   React.useEffect(() => {
     if (selectedAccount) {
@@ -26,20 +50,153 @@ export default function ManageAccountsTab({
       setEditEmail(selectedAccount.email || '');
       setEditPassword(selectedAccount.password || '');
       setIsEditing(false);
+      setEditBalance(selectedAccount.balance?.toString() || '0');
+      setEditChecking(selectedAccount.checkingBalance?.toString() || '0');
+      setEditSavings(selectedAccount.savingsBalance?.toString() || '0');
+      setEditCredit(selectedAccount.creditLimit?.toString() || '0');
+      setEditFico(selectedAccount.ficoScore?.toString() || '0');
+      setEditRewards(selectedAccount.rewardsPoints?.toString() || '0');
+      setEditDaily(selectedAccount.dailyLimit?.toString() || '0');
+      setEditMonthly(selectedAccount.monthlyLimit?.toString() || '0');
+      setEditInterest(selectedAccount.interestRate?.toString() || '0');
+      setEditAvatar(selectedAccount.avatar || '');
+      setEditIban(selectedAccount.iban || '');
+      setEditCardExpiry(selectedAccount.cardExpiry || '');
     }
   }, [selectedAccount]);
 
   const handleSaveEdit = async () => {
     if (!selectedAccount) return;
     await updateUserDetails(selectedAccount.accountId, editName, editEmail, editPassword);
+    
+    const res = await fetch('/api/admin/modify-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountId: selectedAccount.accountId,
+        adminEmail: userEmail,
+        updates: {
+          avatar: editAvatar,
+          iban: editIban,
+          cardExpiry: editCardExpiry
+        }
+      }),
+    });
+    
     setIsEditing(false);
+    window.location.reload();
   };
 
   const handleCancelEdit = () => {
     setEditName(selectedAccount?.name || '');
     setEditEmail(selectedAccount?.email || '');
     setEditPassword(selectedAccount?.password || '');
+    setEditAvatar(selectedAccount?.avatar || '');
+    setEditIban(selectedAccount?.iban || '');
+    setEditCardExpiry(selectedAccount?.cardExpiry || '');
     setIsEditing(false);
+  };
+
+  const handleInsertTransaction = async () => {
+    if (!selectedAccount || !txAmount || !txDescription) return;
+    const res = await fetch('/api/admin/insert-transaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        accountId: selectedAccount.accountId, 
+        adminEmail: userEmail,
+        type: txType,
+        amount: txAmount,
+        description: txDescription,
+        category: txCategory
+      }),
+    });
+    const data = await res.json();
+    alert(data.message);
+    setTxAmount('');
+    setTxDescription('');
+    setTxCategory('Other');
+    window.location.reload();
+  };
+
+  const handleModifyFinancials = async () => {
+    if (!selectedAccount) return;
+    const res = await fetch('/api/admin/modify-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountId: selectedAccount.accountId,
+        adminEmail: userEmail,
+        updates: {
+          balance: editBalance,
+          checkingBalance: editChecking,
+          savingsBalance: editSavings,
+          creditLimit: editCredit,
+          ficoScore: editFico,
+          rewardsPoints: editRewards,
+          dailyLimit: editDaily,
+          monthlyLimit: editMonthly,
+          interestRate: editInterest
+        }
+      }),
+    });
+    const data = await res.json();
+    alert(data.message);
+    setShowFinancials(false);
+    window.location.reload();
+  };
+
+  const handleDeleteTransaction = async (index: number) => {
+    if (!selectedAccount || !confirm('Delete this transaction?')) return;
+    const res = await fetch('/api/admin/modify-transaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountId: selectedAccount.accountId,
+        adminEmail: userEmail,
+        action: 'delete',
+        transactionIndex: index
+      }),
+    });
+    const data = await res.json();
+    alert(data.message);
+    window.location.reload();
+  };
+
+  const handleEditTransaction = async (index: number) => {
+    if (!selectedAccount) return;
+    const res = await fetch('/api/admin/modify-transaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountId: selectedAccount.accountId,
+        adminEmail: userEmail,
+        action: 'edit',
+        transactionIndex: index,
+        updates: {
+          type: editTxType,
+          amount: editTxAmount,
+          description: editTxDescription,
+          category: editTxCategory,
+          date: editTxDate
+        }
+      }),
+    });
+    const data = await res.json();
+    alert(data.message);
+    setEditingTx(null);
+    window.location.reload();
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -244,6 +401,17 @@ export default function ManageAccountsTab({
                   </div>
                   <div style={{ marginTop: '12px', display: 'grid', gap: '12px' }}>
                     <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Avatar</p>
+                      {isEditing ? (
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                          {editAvatar && <img src={editAvatar} alt="Avatar" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} />}
+                          <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ fontSize: '12px' }} />
+                        </div>
+                      ) : (
+                        selectedAccount.avatar ? <img src={selectedAccount.avatar} alt="Avatar" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} /> : <p style={{ fontSize: '13px', color: '#6b7280' }}>No avatar</p>
+                      )}
+                    </div>
+                    <div>
                       <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Full Name</p>
                       {isEditing ? (
                         <input
@@ -272,6 +440,35 @@ export default function ManageAccountsTab({
                       )}
                     </div>
                     <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Phone</p>
+                      {isEditing ? (
+                        <input
+                          type="tel"
+                          value={selectedAccount.phone || ''}
+                          onChange={async (e) => {
+                            const newPhone = e.target.value;
+                            const res = await fetch('/api/admin/modify-user', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                accountId: selectedAccount.accountId,
+                                adminEmail: userEmail,
+                                updates: { phone: newPhone }
+                              }),
+                            });
+                            if (res.ok) {
+                              selectedAccount.phone = newPhone;
+                            }
+                          }}
+                          className="input"
+                          style={{ fontSize: '13px', padding: '8px' }}
+                          placeholder="+1234567890"
+                        />
+                      ) : (
+                        <p style={{ fontSize: '13px', color: '#111827' }}>{selectedAccount.phone || 'N/A'}</p>
+                      )}
+                    </div>
+                    <div>
                       <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Password</p>
                       {isEditing ? (
                         <input
@@ -289,12 +486,36 @@ export default function ManageAccountsTab({
                       <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>Account Number</p>
                       <p style={{ fontSize: '13px', color: '#111827', fontFamily: 'monospace' }}>{selectedAccount.accountId}</p>
                     </div>
-                    {selectedAccount.iban && (
-                      <div>
-                        <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>IBAN</p>
-                        <p style={{ fontSize: '13px', color: '#111827', fontFamily: 'monospace' }}>{selectedAccount.iban}</p>
-                      </div>
-                    )}
+                    <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>IBAN</p>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editIban}
+                          onChange={(e) => setEditIban(e.target.value)}
+                          className="input"
+                          style={{ fontSize: '13px', padding: '8px', fontFamily: 'monospace' }}
+                          placeholder="GB00XXXX00000000000000"
+                        />
+                      ) : (
+                        <p style={{ fontSize: '13px', color: '#111827', fontFamily: 'monospace' }}>{selectedAccount.iban || 'N/A'}</p>
+                      )}
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>Card Expiry</p>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editCardExpiry}
+                          onChange={(e) => setEditCardExpiry(e.target.value)}
+                          className="input"
+                          style={{ fontSize: '13px', padding: '8px' }}
+                          placeholder="12/28"
+                        />
+                      ) : (
+                        <p style={{ fontSize: '13px', color: '#111827' }}>{selectedAccount.cardExpiry || 'N/A'}</p>
+                      )}
+                    </div>
                     <div>
                       <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600' }}>Balance</p>
                       <p style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>
@@ -333,13 +554,200 @@ export default function ManageAccountsTab({
                   </button>
                 </div>
 
-                <button
-                  onClick={assignToSelf}
-                  className="btn"
-                  style={{ width: '100%', background: '#0055C4', color: 'white', marginBottom: '16px' }}
-                >
-                  ASSIGN TO ME
-                </button>
+                {userRole === 'superadmin' && (
+                  <button
+                    onClick={assignToSelf}
+                    className="btn"
+                    style={{ width: '100%', background: '#0055C4', color: 'white', marginBottom: '16px' }}
+                  >
+                    ASSIGN TO ME
+                  </button>
+                )}
+
+                {selectedAccount.role === 'user' && (
+                  <>
+                    <div style={{ paddingTop: '16px', borderTop: '1px solid #e5e7eb', marginBottom: '16px' }}>
+                      <p className="label">OTP MANAGEMENT</p>
+                      <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', marginBottom: '12px' }}>
+                        <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Phone: {selectedAccount.phone || 'No phone number'}</p>
+                        <p style={{ fontSize: '12px', color: '#6b7280' }}>Status: {selectedAccount.otpVerified ? '✓ Verified' : 'Not verified'}</p>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <button
+                          onClick={async () => {
+                            const res = await fetch('/api/admin/send-otp', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                action: 'generate',
+                                adminEmail: userEmail,
+                                userEmail: selectedAccount.email
+                              }),
+                            });
+                            const data = await res.json();
+                            alert(`OTP Generated: ${data.otp}\nPhone: ${data.phone}\nExpires in: ${data.expiresIn}`);
+                          }}
+                          className="btn"
+                          style={{ background: '#0055C4', color: 'white', fontSize: '12px', padding: '8px' }}
+                        >
+                          GENERATE OTP
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const res = await fetch('/api/admin/send-otp', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                action: 'clear',
+                                adminEmail: userEmail,
+                                userEmail: selectedAccount.email
+                              }),
+                            });
+                            const data = await res.json();
+                            alert(data.message);
+                          }}
+                          className="btn"
+                          style={{ background: '#6b7280', color: 'white', fontSize: '12px', padding: '8px' }}
+                        >
+                          CLEAR OTP
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ paddingTop: '16px', borderTop: '1px solid #e5e7eb', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <p className="label" style={{ marginBottom: 0 }}>FINANCIAL DETAILS</p>
+                        <button
+                          onClick={() => setShowFinancials(!showFinancials)}
+                          style={{ padding: '6px 12px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                        >
+                          {showFinancials ? 'HIDE' : 'EDIT'}
+                        </button>
+                      </div>
+                      {showFinancials && (
+                        <div style={{ display: 'grid', gap: '12px', marginTop: '12px' }}>
+                          <input type="number" value={editBalance} onChange={(e) => setEditBalance(e.target.value)} className="input" placeholder="Balance" />
+                          <input type="number" value={editChecking} onChange={(e) => setEditChecking(e.target.value)} className="input" placeholder="Checking Balance" />
+                          <input type="number" value={editSavings} onChange={(e) => setEditSavings(e.target.value)} className="input" placeholder="Savings Balance" />
+                          <input type="number" value={editCredit} onChange={(e) => setEditCredit(e.target.value)} className="input" placeholder="Credit Limit" />
+                          <input type="number" value={editFico} onChange={(e) => setEditFico(e.target.value)} className="input" placeholder="FICO Score" />
+                          <input type="number" value={editRewards} onChange={(e) => setEditRewards(e.target.value)} className="input" placeholder="Rewards Points" />
+                          <input type="number" value={editDaily} onChange={(e) => setEditDaily(e.target.value)} className="input" placeholder="Daily Limit" />
+                          <input type="number" value={editMonthly} onChange={(e) => setEditMonthly(e.target.value)} className="input" placeholder="Monthly Limit" />
+                          <input type="number" value={editInterest} onChange={(e) => setEditInterest(e.target.value)} className="input" placeholder="Interest Rate" step="0.01" />
+                          <button onClick={handleModifyFinancials} className="btn" style={{ background: '#10b981', color: 'white' }}>SAVE CHANGES</button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ paddingTop: '16px', borderTop: '1px solid #e5e7eb', marginBottom: '16px' }}>
+                      <p className="label">TRANSACTION HISTORY</p>
+                      <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '12px' }}>
+                        {(selectedAccount.transactions || []).map((tx: any, i: number) => (
+                          <div key={i} style={{ padding: '12px', border: '1px solid #e5e7eb', borderRadius: '6px', marginBottom: '8px', background: editingTx === i ? '#fff3cd' : '#f9fafb' }}>
+                            {editingTx === i ? (
+                              <div style={{ display: 'grid', gap: '8px' }}>
+                                <select value={editTxType} onChange={(e) => setEditTxType(e.target.value)} className="input" style={{ padding: '6px', fontSize: '12px' }}>
+                                  <option value="deposit">Deposit</option>
+                                  <option value="withdrawal">Withdrawal</option>
+                                </select>
+                                <input type="number" value={editTxAmount} onChange={(e) => setEditTxAmount(e.target.value)} className="input" style={{ padding: '6px', fontSize: '12px' }} placeholder="Amount" />
+                                <input type="text" value={editTxDescription} onChange={(e) => setEditTxDescription(e.target.value)} className="input" style={{ padding: '6px', fontSize: '12px' }} placeholder="Description" />
+                                <input type="text" value={editTxCategory} onChange={(e) => setEditTxCategory(e.target.value)} className="input" style={{ padding: '6px', fontSize: '12px' }} placeholder="Category" />
+                                <input type="datetime-local" value={editTxDate} onChange={(e) => setEditTxDate(e.target.value)} className="input" style={{ padding: '6px', fontSize: '12px' }} />
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <button onClick={() => handleEditTransaction(i)} style={{ flex: 1, padding: '6px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}>SAVE</button>
+                                  <button onClick={() => setEditingTx(null)} style={{ flex: 1, padding: '6px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}>CANCEL</button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                  <p style={{ fontSize: '13px', fontWeight: '600', color: '#111827' }}>{tx.description}</p>
+                                  <p style={{ fontSize: '11px', color: '#6b7280' }}>{tx.type} • ${tx.amount} • {tx.category || 'N/A'}</p>
+                                  <p style={{ fontSize: '10px', color: '#9ca3af' }}>{new Date(tx.date).toLocaleString()}</p>
+                                </div>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                  <button
+                                    onClick={() => {
+                                      setEditingTx(i);
+                                      setEditTxType(tx.type);
+                                      setEditTxAmount(tx.amount.toString());
+                                      setEditTxDescription(tx.description);
+                                      setEditTxCategory(tx.category || '');
+                                      setEditTxDate(new Date(tx.date).toISOString().slice(0, 16));
+                                    }}
+                                    style={{ padding: '4px 8px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}
+                                  >
+                                    EDIT
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteTransaction(i)}
+                                    style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}
+                                  >
+                                    DELETE
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ paddingTop: '16px', borderTop: '1px solid #e5e7eb', marginBottom: '16px' }}>
+                      <p className="label">INSERT TRANSACTION</p>
+                      <div style={{ display: 'grid', gap: '12px' }}>
+                        <div>
+                          <select value={txType} onChange={(e) => setTxType(e.target.value)} className="input">
+                            <option value="deposit">Deposit</option>
+                            <option value="withdrawal">Withdrawal</option>
+                          </select>
+                        </div>
+                        <div>
+                          <input
+                            type="number"
+                            value={txAmount}
+                            onChange={(e) => setTxAmount(e.target.value)}
+                            className="input"
+                            placeholder="Amount"
+                          />
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            value={txDescription}
+                            onChange={(e) => setTxDescription(e.target.value)}
+                            className="input"
+                            placeholder="Description"
+                          />
+                        </div>
+                        <div>
+                          <select value={txCategory} onChange={(e) => setTxCategory(e.target.value)} className="input">
+                            <option>Other</option>
+                            <option>Income</option>
+                            <option>Groceries</option>
+                            <option>Dining</option>
+                            <option>Shopping</option>
+                            <option>Utilities</option>
+                            <option>Transportation</option>
+                            <option>Entertainment</option>
+                            <option>Healthcare</option>
+                            <option>Transfer</option>
+                          </select>
+                        </div>
+                        <button
+                          onClick={handleInsertTransaction}
+                          disabled={!txAmount || !txDescription}
+                          className="btn btn-primary"
+                          style={{ width: '100%' }}
+                        >
+                          INSERT TRANSACTION
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {userRole === 'superadmin' && (
                   <div style={{ paddingTop: '16px', borderTop: '1px solid #e5e7eb', marginBottom: '16px' }}>

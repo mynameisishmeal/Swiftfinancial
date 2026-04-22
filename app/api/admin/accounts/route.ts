@@ -36,7 +36,22 @@ export async function DELETE(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db('habank');
     
+    const account = await db.collection('accounts').findOne({ accountId });
+    if (!account) {
+      return NextResponse.json({ message: 'Account not found' }, { status: 404 });
+    }
+    
     await db.collection('accounts').deleteOne({ accountId });
+    
+    if (account.managedBy) {
+      const admin = await db.collection('accounts').findOne({ email: account.managedBy });
+      if (admin && admin.role === 'admin') {
+        const currentCount = await db.collection('accounts').countDocuments({ 
+          managedBy: account.managedBy, 
+          role: 'user' 
+        });
+      }
+    }
     
     return NextResponse.json({ message: 'Account deleted successfully' });
   } catch (error: any) {

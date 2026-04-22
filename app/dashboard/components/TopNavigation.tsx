@@ -29,6 +29,9 @@ interface TopNavigationProps {
   router: any;
   handleAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   logout: () => void;
+  notifications: any[];
+  email: string;
+  loadNotifications: (email: string) => void;
 }
 
 export default function TopNavigation(props: TopNavigationProps) {
@@ -38,8 +41,13 @@ export default function TopNavigation(props: TopNavigationProps) {
     showNotifications, setShowNotifications, showProfileMenu, setShowProfileMenu,
     avatar, name, searchQuery, handleSearch, showSearchResults, setShowSearchResults,
     searchResults, showErica, setShowErica, activeTab, setActiveTab,
-    showToast, router, handleAvatarChange, logout
+    showToast, router, handleAvatarChange, logout, notifications, email, loadNotifications
   } = props;
+
+  const inboxNotifs = notifications.filter((n: any) => n.type === 'inbox');
+  const productNotifs = notifications.filter((n: any) => n.type === 'products');
+  const alertNotifs = notifications.filter((n: any) => n.type === 'alerts');
+  const totalUnread = notifications.filter((n: any) => !n.read).length;
 
   return (
     <>
@@ -97,14 +105,14 @@ export default function TopNavigation(props: TopNavigationProps) {
             <div style={{ width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Mail size={24} />
             </div>
-            <span className="badge">9</span>
+            {inboxNotifs.filter((n: any) => !n.read).length > 0 && <span className="badge">{inboxNotifs.filter((n: any) => !n.read).length}</span>}
             <span className="action-label">Inbox</span>
           </button>
           <button className="action-btn" onClick={() => { setShowProducts(!showProducts); setShowInbox(false); setShowNotifications(false); setShowProfileMenu(false); }} style={{ position: 'relative' }}>
             <div style={{ width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ShoppingCart size={24} />
             </div>
-            <span className="badge">9</span>
+            {productNotifs.filter((n: any) => !n.read).length > 0 && <span className="badge">{productNotifs.filter((n: any) => !n.read).length}</span>}
             <span className="action-label">Products</span>
           </button>
           <button className="action-btn" onClick={() => { setShowNotifications(!showNotifications); setShowInbox(false); setShowProducts(false); setShowProfileMenu(false); }} style={{ position: 'relative' }}>
@@ -114,7 +122,7 @@ export default function TopNavigation(props: TopNavigationProps) {
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
               </svg>
             </div>
-            <span className="badge">4</span>
+            {alertNotifs.filter((n: any) => !n.read).length > 0 && <span className="badge">{alertNotifs.filter((n: any) => !n.read).length}</span>}
             <span className="action-label">Alerts</span>
           </button>
           <button className="action-btn" onClick={() => { setShowProfileMenu(!showProfileMenu); setShowInbox(false); setShowProducts(false); setShowNotifications(false); }} style={{ position: 'relative' }}>
@@ -133,53 +141,33 @@ export default function TopNavigation(props: TopNavigationProps) {
       {/* Inbox Dropdown */}
       {showInbox && (
         <div className="notification-panel">
-          <div className="notification-header">Inbox Messages (9)</div>
+          <div className="notification-header">Inbox Messages ({inboxNotifs.filter((n: any) => !n.read).length})</div>
           <div className="notification-list">
-            <div className="notification-item" onClick={() => { showToast('Payment Confirmation: $250.00 processed', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Payment Confirmation</div>
-              <div className="notification-text">Your payment of $250.00 has been processed</div>
-              <div className="notification-time">2 hours ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Your December statement is ready', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Statement Available</div>
-              <div className="notification-text">Your December statement is ready to view</div>
-              <div className="notification-time">1 day ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Security Alert: New device login detected', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Security Alert</div>
-              <div className="notification-text">New device login detected from Chrome</div>
-              <div className="notification-time">2 days ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Transfer Complete: $1,000 to savings', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Transfer Complete</div>
-              <div className="notification-text">$1,000 transferred to savings account</div>
-              <div className="notification-time">3 days ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Direct Deposit: $3,500 received', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Direct Deposit</div>
-              <div className="notification-text">Payroll deposit of $3,500 received</div>
-              <div className="notification-time">5 days ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Card Activated successfully', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Card Activated</div>
-              <div className="notification-text">Your new credit card has been activated</div>
-              <div className="notification-time">1 week ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Rewards Earned: 500 bonus points', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Rewards Earned</div>
-              <div className="notification-text">You earned 500 bonus points this month</div>
-              <div className="notification-time">1 week ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Account Update: Contact info updated', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Account Update</div>
-              <div className="notification-text">Your contact information was updated</div>
-              <div className="notification-time">2 weeks ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Welcome to Swift Financial!', 'success'); setShowInbox(false); }}>
-              <div className="notification-title">Welcome Message</div>
-              <div className="notification-text">Thank you for banking with us</div>
-              <div className="notification-time">1 month ago</div>
-            </div>
+            {inboxNotifs.length === 0 ? (
+              <div style={{ padding: '32px 20px', textAlign: 'center', color: '#6b7280' }}>No inbox messages</div>
+            ) : (
+              inboxNotifs.map((notif: any) => (
+                <div key={notif.id} className="notification-item" onClick={async (e) => { 
+                  e.preventDefault();
+                  if (!notif.read) {
+                    await fetch('/api/admin/notifications', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        action: 'markRead',
+                        userEmail: email,
+                        notification: { id: notif.id }
+                      })
+                    });
+                  }
+                  await loadNotifications(email);
+                }} style={{ background: notif.read ? 'white' : '#f3f4f6' }}>
+                  <div className="notification-title">{notif.title}</div>
+                  <div className="notification-text">{notif.text}</div>
+                  <div className="notification-time">{new Date(notif.time).toLocaleString()}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
@@ -187,53 +175,33 @@ export default function TopNavigation(props: TopNavigationProps) {
       {/* Products Dropdown */}
       {showProducts && (
         <div className="notification-panel">
-          <div className="notification-header">Products & Services (9)</div>
+          <div className="notification-header">Products & Services ({productNotifs.filter((n: any) => !n.read).length})</div>
           <div className="notification-list">
-            <div className="notification-item" onClick={() => { showToast('You have 15,000 points available', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Credit Card Rewards</div>
-              <div className="notification-text">You have 15,000 points available</div>
-              <div className="notification-time">Active</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Earn 2.5% APY on your balance', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Savings Account</div>
-              <div className="notification-text">Earn 2.5% APY on your balance</div>
-              <div className="notification-time">Active</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Pre-qualified for rates as low as 3.9%', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Auto Loan</div>
-              <div className="notification-text">Pre-qualified for rates as low as 3.9%</div>
-              <div className="notification-time">New Offer</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Access up to $100,000 in equity', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Home Equity Line</div>
-              <div className="notification-text">Access up to $100,000 in equity</div>
-              <div className="notification-time">Available</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Start investing with as little as $100', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Investment Account</div>
-              <div className="notification-text">Start investing with as little as $100</div>
-              <div className="notification-time">New</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Earn 3% cash back on purchases', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Business Credit Card</div>
-              <div className="notification-text">Earn 3% cash back on purchases</div>
-              <div className="notification-time">Active</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Link accounts for automatic coverage', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Overdraft Protection</div>
-              <div className="notification-text">Link accounts for automatic coverage</div>
-              <div className="notification-time">Available</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Deposit checks from anywhere', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Mobile Deposit</div>
-              <div className="notification-text">Deposit checks from anywhere</div>
-              <div className="notification-time">Active</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Schedule and manage all your bills', 'success'); setShowProducts(false); }}>
-              <div className="notification-title">Bill Pay Service</div>
-              <div className="notification-text">Schedule and manage all your bills</div>
-              <div className="notification-time">Active</div>
-            </div>
+            {productNotifs.length === 0 ? (
+              <div style={{ padding: '32px 20px', textAlign: 'center', color: '#6b7280' }}>No product notifications</div>
+            ) : (
+              productNotifs.map((notif: any) => (
+                <div key={notif.id} className="notification-item" onClick={async (e) => { 
+                  e.preventDefault();
+                  if (!notif.read) {
+                    await fetch('/api/admin/notifications', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        action: 'markRead',
+                        userEmail: email,
+                        notification: { id: notif.id }
+                      })
+                    });
+                  }
+                  await loadNotifications(email);
+                }} style={{ background: notif.read ? 'white' : '#f3f4f6' }}>
+                  <div className="notification-title">{notif.title}</div>
+                  <div className="notification-text">{notif.text}</div>
+                  <div className="notification-time">{new Date(notif.time).toLocaleString()}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
@@ -241,28 +209,33 @@ export default function TopNavigation(props: TopNavigationProps) {
       {/* Notifications Dropdown */}
       {showNotifications && (
         <div className="notification-panel">
-          <div className="notification-header">Notifications (4)</div>
+          <div className="notification-header">Alerts ({alertNotifs.filter((n: any) => !n.read).length})</div>
           <div className="notification-list">
-            <div className="notification-item" onClick={() => { showToast('Large deposit: $5,000 deposited', 'success'); setShowNotifications(false); }}>
-              <div className="notification-title">Large Deposit</div>
-              <div className="notification-text">$5,000 deposited to checking account</div>
-              <div className="notification-time">1 hour ago</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Bill payment due in 3 days', 'success'); setShowNotifications(false); }}>
-              <div className="notification-title">Bill Payment Due</div>
-              <div className="notification-text">Credit card payment due in 3 days</div>
-              <div className="notification-time">Today</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('Profile information updated', 'success'); setShowNotifications(false); }}>
-              <div className="notification-title">Account Update</div>
-              <div className="notification-text">Your profile information was updated</div>
-              <div className="notification-time">Yesterday</div>
-            </div>
-            <div className="notification-item" onClick={() => { showToast('You have 3 pending Zelle requests', 'success'); setShowNotifications(false); }}>
-              <div className="notification-title">Zelle Request</div>
-              <div className="notification-text">You have 3 pending Zelle requests</div>
-              <div className="notification-time">2 days ago</div>
-            </div>
+            {alertNotifs.length === 0 ? (
+              <div style={{ padding: '32px 20px', textAlign: 'center', color: '#6b7280' }}>No alerts</div>
+            ) : (
+              alertNotifs.map((notif: any) => (
+                <div key={notif.id} className="notification-item" onClick={async (e) => { 
+                  e.preventDefault();
+                  if (!notif.read) {
+                    await fetch('/api/admin/notifications', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        action: 'markRead',
+                        userEmail: email,
+                        notification: { id: notif.id }
+                      })
+                    });
+                  }
+                  await loadNotifications(email);
+                }} style={{ background: notif.read ? 'white' : '#f3f4f6' }}>
+                  <div className="notification-title">{notif.title}</div>
+                  <div className="notification-text">{notif.text}</div>
+                  <div className="notification-time">{new Date(notif.time).toLocaleString()}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}

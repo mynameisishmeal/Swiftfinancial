@@ -11,6 +11,8 @@ import LiveChatTab from './components/LiveChatTab';
 import ManageAccountsTab from './components/ManageAccountsTab';
 import CreateAccountTab from './components/CreateAccountTab';
 import AdminSettingsTab from './components/AdminSettingsTab';
+import AssignUsersTab from './components/AssignUsersTab';
+import NotificationMonitorTab from './components/NotificationMonitorTab';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -106,6 +108,10 @@ export default function AdminDashboard() {
     if (data.accounts) {
       setAccounts(data.accounts);
       setUsersCreated(data.accounts.filter((acc: any) => acc.role === 'user').length);
+      if (selectedAccount) {
+        const updated = data.accounts.find((acc: any) => acc.accountId === selectedAccount.accountId);
+        if (updated) setSelectedAccount(updated);
+      }
     }
     if (role === 'admin') {
       const adminRes = await fetch(`/api/admin/self?email=${email}`);
@@ -429,6 +435,7 @@ export default function AdminDashboard() {
                   userRole={userRole} 
                   loading={loading}
                   updateUserDetails={updateUserDetails}
+                  userEmail={userEmail}
                 />
               </>
             )}
@@ -457,6 +464,10 @@ export default function AdminDashboard() {
               />
             )}
 
+            {activeTab === 'notifications' && (
+              <NotificationMonitorTab accounts={accounts} userEmail={userEmail} />
+            )}
+
             {activeTab === 'settings' && (
               <AdminSettingsTab 
                 googleEmail={googleEmail} 
@@ -466,6 +477,10 @@ export default function AdminDashboard() {
                 userRole={userRole}
                 showToast={(msg: string, type: 'success' | 'error') => showToast(msg, type)}
               />
+            )}
+
+            {activeTab === 'assign-users' && userRole === 'superadmin' && (
+              <AssignUsersTab userEmail={userEmail} />
             )}
 
             {activeTab === 'homepage-chat' && userRole === 'superadmin' && (
