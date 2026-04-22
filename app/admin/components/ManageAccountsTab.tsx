@@ -495,14 +495,26 @@ export default function ManageAccountsTab({
                     <div>
                       <p style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: '600', marginBottom: '4px' }}>IBAN</p>
                       {isEditing ? (
-                        <input
-                          type="text"
-                          value={editIban}
-                          onChange={(e) => setEditIban(e.target.value)}
-                          className="input"
-                          style={{ fontSize: '13px', padding: '8px', fontFamily: 'monospace' }}
-                          placeholder="GB00XXXX00000000000000"
-                        />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input
+                            type="text"
+                            value={editIban}
+                            onChange={(e) => setEditIban(e.target.value)}
+                            className="input"
+                            style={{ fontSize: '13px', padding: '8px', fontFamily: 'monospace' }}
+                            placeholder="GB00XXXX00000000000000"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const num = Math.floor(10 + Math.random() * 89).toString() + Date.now().toString().slice(-14);
+                              setEditIban('US' + num);
+                            }}
+                            style={{ padding: '8px 12px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                          >
+                            GEN
+                          </button>
+                        </div>
                       ) : (
                         <p style={{ fontSize: '13px', color: '#111827', fontFamily: 'monospace' }}>{selectedAccount.iban || 'N/A'}</p>
                       )}

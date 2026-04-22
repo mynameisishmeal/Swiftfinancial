@@ -14,6 +14,13 @@ export default function CreateAccountTab({
   const [accountRole, setAccountRole] = React.useState('user');
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [successMessage, setSuccessMessage] = React.useState('');
+  const ibanRef = React.useRef<HTMLInputElement>(null);
+
+  const generateIban = () => {
+    const num = Math.floor(10 + Math.random() * 89).toString() + Date.now().toString().slice(-14);
+    const iban = 'US' + num;
+    if (ibanRef.current) ibanRef.current.value = iban;
+  };
   
   const autofillForm = () => {
     const form = document.getElementById('create-account-form') as HTMLFormElement;
@@ -406,7 +413,10 @@ export default function CreateAccountTab({
             </div>
             <div className="form-group">
               <label className="label">IBAN</label>
-              <input name="iban" type="text" placeholder="" className="input" />
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input ref={ibanRef} name="iban" type="text" placeholder="" className="input" style={{ fontFamily: 'monospace' }} />
+                <button type="button" onClick={generateIban} style={{ padding: '12px 14px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>GEN</button>
+              </div>
             </div>
             <div className="form-group">
               <label className="label">DAILY TRANSACTION LIMIT</label>
