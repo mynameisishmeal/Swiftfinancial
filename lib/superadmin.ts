@@ -5,7 +5,7 @@ const SUPERADMIN_EMAIL = 'maelsav100@gmail.com';
 export async function enforceSuperadmin() {
   try {
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     await db.collection('accounts').updateOne(
       { email: SUPERADMIN_EMAIL },

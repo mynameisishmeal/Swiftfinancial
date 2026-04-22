@@ -4,7 +4,7 @@ import clientPromise from '@/lib/mongodb';
 export async function POST(req: NextRequest) {
   try {
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     const accounts = db.collection('accounts');
     
     const superadmin = {

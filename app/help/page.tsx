@@ -60,7 +60,7 @@ export default function Help() {
       `}</style>
       <div className="app-container">
         <div className="top-nav">
-          <img src="/assets/BofA_rgb.png" alt="Swift Financial" style={{ height: '24px' }} />
+          <img src="/assets/sfb-logo.png" alt="Swift Financial" style={{ height: '24px' }} />
           <div style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>Help & Support</div>
           <button onClick={() => router.push('/dashboard')} className="back-btn">
             BACK TO DASHBOARD
@@ -106,11 +106,11 @@ export default function Help() {
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                       {filteredFaqs.map((faq, index) => (
-                        <div key={index} style={{ borderBottom: '1px solid var(--bofa-gray-200)', paddingBottom: '16px' }}>
-                          <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: 'var(--bofa-gray-900)' }}>
+                        <div key={index} style={{ borderBottom: '1px solid var(--sfb-gray-200)', paddingBottom: '16px' }}>
+                          <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: 'var(--sfb-gray-900)' }}>
                             {faq.question}
                           </h4>
-                          <p style={{ fontSize: '14px', color: 'var(--bofa-gray-600)', lineHeight: '1.5' }}>
+                          <p style={{ fontSize: '14px', color: 'var(--sfb-gray-600)', lineHeight: '1.5' }}>
                             {faq.answer}
                           </p>
                         </div>
@@ -153,7 +153,7 @@ export default function Help() {
                           Send us a secure message
                         </p>
                         <p style={{ fontSize: '14px', color: '#0055C4' }}>
-                          support@bankofamerica.com
+                          support@swiftfinancial.com
                         </p>
                       </div>
                     </div>

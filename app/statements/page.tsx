@@ -149,7 +149,7 @@ Swift Financial, N.A. Member FDIC.
       `}</style>
       <div className="app-container">
         <div className="top-nav">
-          <img src="/assets/BofA_rgb.png" alt="Swift Financial" style={{ height: '24px' }} />
+          <img src="/assets/sfb-logo.png" alt="Swift Financial" style={{ height: '24px' }} />
           <button onClick={() => router.push('/dashboard')} className="back-btn">
             BACK TO DASHBOARD
           </button>

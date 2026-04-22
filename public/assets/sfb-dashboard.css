@@ -1,50 +1,50 @@
-/* Bank of America Dashboard Styles */
+/* Swift Financial Dashboard Styles */
 :root {
-  --bofa-red: #e31837;
-  --bofa-dark-red: #c41230;
-  --bofa-blue: #012169;
-  --bofa-light-blue: #0057b8;
-  --bofa-gray-50: #fafafa;
-  --bofa-gray-100: #f5f5f5;
-  --bofa-gray-200: #eeeeee;
-  --bofa-gray-300: #e0e0e0;
-  --bofa-gray-400: #bdbdbd;
-  --bofa-gray-600: #757575;
-  --bofa-gray-700: #616161;
-  --bofa-gray-900: #212121;
-  --bofa-green: #00a758;
-  --bofa-orange: #ff6200;
+  --sfb-red: #e31837;
+  --sfb-dark-red: #c41230;
+  --sfb-blue: #012169;
+  --sfb-light-blue: #0057b8;
+  --sfb-gray-50: #fafafa;
+  --sfb-gray-100: #f5f5f5;
+  --sfb-gray-200: #eeeeee;
+  --sfb-gray-300: #e0e0e0;
+  --sfb-gray-400: #bdbdbd;
+  --sfb-gray-600: #757575;
+  --sfb-gray-700: #616161;
+  --sfb-gray-900: #212121;
+  --sfb-green: #00a758;
+  --sfb-orange: #ff6200;
 }
 
 /* Reset and Base */
-.bofa-dashboard {
+\.sfb-dashboard {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background: var(--bofa-gray-50);
+  background: var(--sfb-gray-50);
   min-height: 100vh;
-  color: var(--bofa-gray-900);
+  color: var(--sfb-gray-900);
 }
 
 /* Header */
-.bofa-header {
+\.sfb-header {
   background: white;
-  border-bottom: 1px solid var(--bofa-gray-200);
+  border-bottom: 1px solid var(--sfb-gray-200);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
-.bofa-header-stripe {
+\.sfb-header-stripe {
   height: 3px;
-  background: var(--bofa-red);
+  background: var(--sfb-red);
 }
 
-.bofa-header-nav {
-  background: var(--bofa-blue);
+\.sfb-header-nav {
+  background: var(--sfb-blue);
   padding: 16px 24px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.bofa-header-content {
+\.sfb-header-content {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
@@ -52,25 +52,25 @@
   align-items: center;
 }
 
-.bofa-logo {
+\.sfb-logo {
   height: 28px;
 }
 
-.bofa-user-info {
+\.sfb-user-info {
   display: flex;
   align-items: center;
   gap: 16px;
   color: white;
 }
 
-.bofa-avatar {
+\.sfb-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   border: 2px solid white;
 }
 
-.bofa-logout-btn {
+\.sfb-logout-btn {
   color: white;
   background: none;
   border: none;
@@ -81,56 +81,56 @@
   transition: background-color 0.2s;
 }
 
-.bofa-logout-btn:hover {
+\.sfb-logout-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
 /* Main Navigation Tabs */
-.bofa-main-nav {
+\.sfb-main-nav {
   background: white;
   padding: 0 24px;
-  border-bottom: 1px solid var(--bofa-gray-200);
+  border-bottom: 1px solid var(--sfb-gray-200);
 }
 
-.bofa-nav-content {
+\.sfb-nav-content {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
   gap: 0;
 }
 
-.bofa-nav-tab {
+\.sfb-nav-tab {
   padding: 16px 24px;
   background: none;
   border: none;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  color: var(--bofa-gray-600);
+  color: var(--sfb-gray-600);
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.bofa-nav-tab:hover {
-  color: var(--bofa-red);
+\.sfb-nav-tab:hover {
+  color: var(--sfb-red);
 }
 
-.bofa-nav-tab.active {
-  color: var(--bofa-red);
-  border-bottom-color: var(--bofa-red);
+\.sfb-nav-tab.active {
+  color: var(--sfb-red);
+  border-bottom-color: var(--sfb-red);
 }
 
 /* Main Content */
-.bofa-main {
+\.sfb-main {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
 }
 
 /* Cards */
-.bofa-card {
+\.sfb-card {
   background: #ffffff;
   border-radius: 4px;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
@@ -140,17 +140,17 @@
   transition: box-shadow 0.2s ease;
 }
 
-.bofa-card:hover {
+\.sfb-card:hover {
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.1);
 }
 
-.bofa-card-header {
+\.sfb-card-header {
   padding: 20px 24px;
   border-bottom: 1px solid #f0f0f0;
   background: #fafafa;
 }
 
-.bofa-card-title {
+\.sfb-card-title {
   font-size: 16px;
   font-weight: 600;
   color: #333333;
@@ -158,19 +158,19 @@
   letter-spacing: -0.2px;
 }
 
-.bofa-card-content {
+\.sfb-card-content {
   padding: 24px;
 }
 
 /* Account Summary */
-.bofa-account-summary {
+\.sfb-account-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
 
-.bofa-account-card {
+\.sfb-account-card {
   background: #ffffff;
   border-radius: 4px;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
@@ -179,50 +179,50 @@
   transition: all 0.2s ease;
 }
 
-.bofa-account-card:hover {
+\.sfb-account-card:hover {
   box-shadow: 0 2px 6px 0 rgba(0,0,0,0.1);
-  border-color: var(--bofa-light-blue);
+  border-color: var(--sfb-light-blue);
 }
 
-.bofa-account-type {
+\.sfb-account-type {
   font-size: 12px;
   font-weight: 500;
-  color: var(--bofa-gray-600);
+  color: var(--sfb-gray-600);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
 }
 
-.bofa-account-number {
+\.sfb-account-number {
   font-size: 14px;
-  color: var(--bofa-gray-600);
+  color: var(--sfb-gray-600);
   margin-bottom: 4px;
 }
 
-.bofa-account-balance {
+\.sfb-account-balance {
   font-size: 36px;
   font-weight: 300;
-  color: var(--bofa-blue);
+  color: var(--sfb-blue);
   margin: 20px 0 8px;
   letter-spacing: -0.5px;
 }
 
-.bofa-balance-label {
+\.sfb-balance-label {
   font-size: 12px;
-  color: var(--bofa-gray-600);
+  color: var(--sfb-gray-600);
 }
 
 /* Quick Actions */
-.bofa-quick-actions {
+\.sfb-quick-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 32px;
 }
 
-.bofa-action-btn {
+\.sfb-action-btn {
   background: white;
-  border: 1px solid var(--bofa-gray-300);
+  border: 1px solid var(--sfb-gray-300);
   border-radius: 8px;
   padding: 16px;
   cursor: pointer;
@@ -230,122 +230,122 @@
   text-align: left;
 }
 
-.bofa-action-btn:hover {
-  border-color: var(--bofa-red);
+\.sfb-action-btn:hover {
+  border-color: var(--sfb-red);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.bofa-action-icon {
+\.sfb-action-icon {
   width: 24px;
   height: 24px;
   margin-bottom: 8px;
-  color: var(--bofa-red);
+  color: var(--sfb-red);
 }
 
-.bofa-action-title {
+\.sfb-action-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--bofa-gray-900);
+  color: var(--sfb-gray-900);
   margin-bottom: 4px;
 }
 
-.bofa-action-desc {
+\.sfb-action-desc {
   font-size: 12px;
-  color: var(--bofa-gray-600);
+  color: var(--sfb-gray-600);
 }
 
 /* Transaction List */
-.bofa-transaction-list {
+\.sfb-transaction-list {
   background: white;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.bofa-transaction-item {
+\.sfb-transaction-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid var(--bofa-gray-100);
+  border-bottom: 1px solid var(--sfb-gray-100);
 }
 
-.bofa-transaction-item:last-child {
+\.sfb-transaction-item:last-child {
   border-bottom: none;
 }
 
-.bofa-transaction-info {
+\.sfb-transaction-info {
   flex: 1;
 }
 
-.bofa-transaction-desc {
+\.sfb-transaction-desc {
   font-size: 14px;
   font-weight: 500;
-  color: var(--bofa-gray-900);
+  color: var(--sfb-gray-900);
   margin-bottom: 4px;
   text-transform: capitalize;
 }
 
-.bofa-transaction-date {
+\.sfb-transaction-date {
   font-size: 12px;
-  color: var(--bofa-gray-600);
+  color: var(--sfb-gray-600);
 }
 
-.bofa-transaction-amount {
+\.sfb-transaction-amount {
   text-align: right;
 }
 
-.bofa-amount-value {
+\.sfb-amount-value {
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 4px;
 }
 
-.bofa-amount-positive {
-  color: var(--bofa-green);
+\.sfb-amount-positive {
+  color: var(--sfb-green);
 }
 
-.bofa-amount-negative {
-  color: var(--bofa-gray-900);
+\.sfb-amount-negative {
+  color: var(--sfb-gray-900);
 }
 
-.bofa-amount-balance {
+\.sfb-amount-balance {
   font-size: 12px;
-  color: var(--bofa-gray-600);
+  color: var(--sfb-gray-600);
 }
 
 /* Forms */
-.bofa-form-group {
+\.sfb-form-group {
   margin-bottom: 20px;
 }
 
-.bofa-label {
+\.sfb-label {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: var(--bofa-gray-600);
+  color: var(--sfb-gray-600);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
 }
 
-.bofa-input {
+\.sfb-input {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid var(--bofa-gray-300);
+  border: 2px solid var(--sfb-gray-300);
   border-radius: 6px;
   font-size: 14px;
   transition: all 0.3s ease;
   background: white;
 }
 
-.bofa-input:focus {
+\.sfb-input:focus {
   outline: none;
-  border-color: var(--bofa-red);
+  border-color: var(--sfb-red);
   box-shadow: 0 0 0 3px rgba(219, 0, 17, 0.1);
 }
 
 /* Buttons */
-.bofa-btn {
+\.sfb-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
@@ -356,51 +356,51 @@
   letter-spacing: 0.3px;
 }
 
-.bofa-btn-primary {
-  background: var(--bofa-light-blue);
+\.sfb-btn-primary {
+  background: var(--sfb-light-blue);
   color: white;
 }
 
-.bofa-btn-primary:hover:not(:disabled) {
+\.sfb-btn-primary:hover:not(:disabled) {
   background: #004a99;
 }
 
-.bofa-btn-secondary {
+\.sfb-btn-secondary {
   background: white;
-  color: var(--bofa-blue);
-  border: 1px solid var(--bofa-light-blue);
+  color: var(--sfb-blue);
+  border: 1px solid var(--sfb-light-blue);
 }
 
-.bofa-btn-secondary:hover:not(:disabled) {
+\.sfb-btn-secondary:hover:not(:disabled) {
   background: #f5f9ff;
 }
 
-.bofa-btn:disabled {
+\.sfb-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 /* Alerts */
-.bofa-alert {
+\.sfb-alert {
   padding: 16px;
   border-radius: 8px;
   margin-bottom: 24px;
   font-size: 14px;
 }
 
-.bofa-alert-success {
+\.sfb-alert-success {
   background: #e8f5e8;
   border: 1px solid #c3e6c3;
-  color: var(--bofa-green);
+  color: var(--sfb-green);
 }
 
-.bofa-alert-error {
+\.sfb-alert-error {
   background: #fce8e6;
   border: 1px solid #f5c6cb;
-  color: var(--bofa-red);
+  color: var(--sfb-red);
 }
 
-.bofa-alert-warning {
+\.sfb-alert-warning {
   background: #fff3cd;
   border: 1px solid #ffeaa7;
   color: #856404;
@@ -408,45 +408,45 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .bofa-main {
+  \.sfb-main {
     padding: 16px;
   }
   
-  .bofa-account-summary {
+  \.sfb-account-summary {
     grid-template-columns: 1fr;
   }
   
-  .bofa-nav-content {
+  \.sfb-nav-content {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
   
-  .bofa-header-nav {
+  \.sfb-header-nav {
     padding: 12px 16px;
   }
   
-  .bofa-header-content {
+  \.sfb-header-content {
     flex-wrap: wrap;
     gap: 12px;
   }
   
-  .bofa-user-info {
+  \.sfb-user-info {
     gap: 12px;
   }
   
-  .bofa-quick-actions {
+  \.sfb-quick-actions {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .bofa-card-content {
+  \.sfb-card-content {
     padding: 16px;
   }
   
-  .bofa-transaction-item {
+  \.sfb-transaction-item {
     padding: 12px 16px;
   }
   
-  .bofa-nav-tab {
+  \.sfb-nav-tab {
     padding: 12px 16px;
     font-size: 12px;
     white-space: nowrap;
@@ -454,20 +454,20 @@
 }
 
 @media (max-width: 480px) {
-  .bofa-quick-actions {
+  \.sfb-quick-actions {
     grid-template-columns: 1fr;
   }
   
-  .bofa-account-balance {
+  \.sfb-account-balance {
     font-size: 24px;
   }
   
-  .bofa-header-content {
+  \.sfb-header-content {
     flex-direction: column;
     align-items: flex-start;
   }
   
-  .bofa-user-info {
+  \.sfb-user-info {
     width: 100%;
     justify-content: space-between;
   }

@@ -73,8 +73,8 @@ export default function Login() {
 
   return (
     <>
-      <link rel="stylesheet" type="text/css" href="/assets/vipaa-v4-jawr.css" media="all" />
-      <link type="text/css" rel="stylesheet" href="/assets/styles-67459201e251b94c0aa0.m.css" />
+      <link rel="stylesheet" type="text/css" href="/assets/sfb-main.css" media="all" />
+      <link type="text/css" rel="stylesheet" href="/assets/sfb-styles.css" />
       <div className="fsd-layout fsd-2c-700lt-layout">
         <div className="fsd-border">
           <div className="center-content">
@@ -100,7 +100,7 @@ export default function Login() {
                                       <div id="fdicConsumer">
                                         <div className="fdic-signage">
                                           <div className="elements">
-                                            <span className="text-preamble">Bank of America deposit products: </span>
+                                            <span className="text-preamble">Swift Financial deposit products: </span>
                                             <img src="/assets/assets-images-global-fdic-fdic-digital-sign-CSX37f66a3e.svg" alt="FDIC-Insured - Backed by the full faith and credit of the U.S. Government" className="fdic-digital-sign" />
                                           </div>
                                         </div>
@@ -110,7 +110,7 @@ export default function Login() {
                                       </div>
                                     </div>
                                     <div id="fdicWealthSmall" className="fdic-wealthSmalldevice">
-                                      <img src="/assets/assets-images-global-fdic-fdic-wealth-banner-smalldevice-en-CSX7f123629.svg" alt="Bank of America Deposit products:FDIC Insured - Backed by the full faith and credit of the US Government. Investment products are NOT FDIC insured" className="fdic-banner-svg" />
+                                      <img src="/assets/assets-images-global-fdic-fdic-wealth-banner-smalldevice-en-CSX7f123629.svg" alt="Swift Financial deposit products:FDIC Insured - Backed by the full faith and credit of the US Government. Investment products are NOT FDIC insured" className="fdic-banner-svg" />
                                     </div>
                                   </section>
                                 </div>
@@ -123,7 +123,7 @@ export default function Login() {
                   </div>
                 </div>
                 <div className="fsd-secure-esp-skin">
-                  <img height="28" width="230" alt="Swift Financial" src="/assets/BofA_rgb.png" />
+                  <img height="28" width="230" alt="Swift Financial" src="/assets/sfb-logo.png" />
                   <div className="page-type cnx-regular" data-font="#!">Log In</div>
                   <div className="right-links">
                     <div className="secure-area">Secure Area</div>
@@ -184,7 +184,7 @@ export default function Login() {
 
                         <a href="#" className="fl-lt forgot-passcode">Forgot your Password?</a>
                         <div className="clearboth"></div>
-                        <input type="submit" id="login_button" value={loading ? 'Please wait...' : 'Log In'} className="btn-bofa btn-bofa-blue btn-bofa-small btn-bofa-noRight" disabled={loading} style={buttonStyle} />
+                        <input type="submit" id="login_button" value={loading ? 'Please wait...' : 'Log In'} className="sfb-btn sfb-btn-blue sfb-btn-small sfb-btn-noRight" disabled={loading} style={buttonStyle} />
                       </div>
                     </form>
                     
@@ -193,7 +193,7 @@ export default function Login() {
                       <img height="208" width="149" src="/assets/mobile_llama.png" alt="Mobile banking Llama" className="fl-lt" />
                       <div className="get-app-content-section">
                         <div className="cnx-regular title enroll-color-gray mcta-bubble">Secure, convenient banking anytime</div>
-                        <a id="choose-device-get-the-app" className="choose-device-get-the-app-modal btn-bofa btn-bofa-red btn-bofa-noRight cnx-regular" href="#" rel="mobile-app-download-choose-device">
+                        <a id="choose-device-get-the-app" className="choose-device-get-the-app-modal sfb-btn sfb-btn-red sfb-btn-noRight cnx-regular" href="#" rel="mobile-app-download-choose-device">
                           <span>Get the app</span><span className="ada-hidden">&nbsp; link opens a new info modal layer</span>
                         </a>
                       </div>

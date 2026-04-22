@@ -4,13 +4,13 @@ import clientPromise from '@/lib/mongodb';
 export async function GET(req: NextRequest) {
   try {
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const collections = await db.listCollections().toArray();
     const accounts = await db.collection('accounts').find({}).toArray();
     
     return NextResponse.json({
-      database: 'habank',
+      database: 'swiftfinancial',
       collections: collections.map(c => c.name),
       accountCount: accounts.length,
       accounts: accounts.map(a => ({

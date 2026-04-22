@@ -19,7 +19,7 @@ async function migrateAccounts() {
     await client.connect();
     console.log('✅ Connected to MongoDB\n');
 
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     const accounts = await db.collection('accounts').find({}).toArray();
     
     console.log(`📊 Found ${accounts.length} accounts to migrate\n`);

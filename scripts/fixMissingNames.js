@@ -18,7 +18,7 @@ async function fixMissingNames() {
     await client.connect();
     console.log('✅ Connected to MongoDB\n');
 
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     const accounts = await db.collection('accounts').find({
       $or: [
         { name: { $exists: false } },

@@ -9,7 +9,7 @@ async function insertSuperadmin() {
     await client.connect();
     console.log('Connected to MongoDB');
     
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     const accounts = db.collection('accounts');
     
     const superadmin = {

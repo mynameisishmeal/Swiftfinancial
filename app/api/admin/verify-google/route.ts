@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   
   try {
     await client.connect();
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     // Check if email matches an admin/superadmin account directly
     const account = await db.collection('accounts').findOne({ email });

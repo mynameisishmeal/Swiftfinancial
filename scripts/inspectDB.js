@@ -20,7 +20,7 @@ async function inspectDB() {
     await client.connect();
     console.log('✅ Connected to MongoDB\n');
 
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     // Get all collections
     const collections = await db.listCollections().toArray();

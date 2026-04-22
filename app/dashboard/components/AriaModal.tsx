@@ -1,16 +1,16 @@
-interface EricaModalProps {
-  showErica: boolean;
-  setShowErica: (show: boolean) => void;
-  ericaMessage: string;
-  setEricaMessage: (message: string) => void;
-  ericaChat: Array<{role: 'user' | 'assistant', message: string}>;
-  handleEricaSubmit: () => void;
+interface AriaModalProps {
+  showAria: boolean;
+  setshowAria: (show: boolean) => void;
+  ariaMessage: string;
+  setariaMessage: (message: string) => void;
+  ariaChat: Array<{role: 'user' | 'assistant', message: string}>;
+  handleAriaSubmit: () => void;
 }
 
-export default function EricaModal(props: EricaModalProps) {
-  const { showErica, setShowErica, ericaMessage, setEricaMessage, ericaChat, handleEricaSubmit } = props;
+export default function AriaModal(props: AriaModalProps) {
+  const { showAria, setshowAria, ariaMessage, setariaMessage, ariaChat, handleAriaSubmit } = props;
 
-  if (!showErica) return null;
+  if (!showAria) return null;
 
   return (
     <div style={{
@@ -24,7 +24,7 @@ export default function EricaModal(props: EricaModalProps) {
       display: 'flex',
       alignItems: 'flex-end',
       justifyContent: 'center'
-    }} onClick={() => setShowErica(false)}>
+    }} onClick={() => setshowAria(false)}>
       <div style={{
         background: 'white',
         borderRadius: '16px 16px 0 0',
@@ -68,7 +68,7 @@ export default function EricaModal(props: EricaModalProps) {
               <div style={{ fontSize: '12px', opacity: 0.9 }}>Your Virtual Financial Assistant</div>
             </div>
           </div>
-          <button onClick={() => setShowErica(false)} style={{
+          <button onClick={() => setshowAria(false)} style={{
             background: 'rgba(255,255,255,0.2)',
             border: 'none',
             borderRadius: '50%',
@@ -95,14 +95,14 @@ export default function EricaModal(props: EricaModalProps) {
           flexDirection: 'column',
           gap: '16px'
         }}>
-          {ericaChat.length === 0 && (
+          {ariaChat.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>👋</div>
               <div style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>Hi, I'm Erica!</div>
               <div style={{ fontSize: '14px' }}>Your virtual financial assistant. Ask me anything about your accounts, transfers, or banking services.</div>
             </div>
           )}
-          {ericaChat.map((msg, idx) => (
+          {ariaChat.map((msg, idx) => (
             <div key={idx} style={{
               display: 'flex',
               justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
@@ -131,9 +131,9 @@ export default function EricaModal(props: EricaModalProps) {
         }}>
           <input
             type="text"
-            value={ericaMessage}
-            onChange={(e) => setEricaMessage(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleEricaSubmit()}
+            value={ariaMessage}
+            onChange={(e) => setariaMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleAriaSubmit()}
             placeholder="Ask Erica anything..."
             style={{
               flex: 1,
@@ -145,18 +145,18 @@ export default function EricaModal(props: EricaModalProps) {
             }}
           />
           <button
-            onClick={handleEricaSubmit}
-            disabled={!ericaMessage.trim()}
+            onClick={handleAriaSubmit}
+            disabled={!ariaMessage.trim()}
             style={{
               width: '48px',
               height: '48px',
               borderRadius: '50%',
-              background: ericaMessage.trim() ? '#E31837' : '#e5e7eb',
+              background: ariaMessage.trim() ? '#E31837' : '#e5e7eb',
               border: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: ericaMessage.trim() ? 'pointer' : 'not-allowed',
+              cursor: ariaMessage.trim() ? 'pointer' : 'not-allowed',
               color: 'white'
             }}
           >

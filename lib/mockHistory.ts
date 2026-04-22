@@ -26,7 +26,7 @@ const depositTemplates: TransactionTemplate[] = [
   { type: 'deposit', description: 'Zelle Transfer', merchant: 'ZELLE FROM JOHN DOE', category: 'Transfer', minAmount: 50, maxAmount: 1000, frequency: 0.08 },
   { type: 'deposit', description: 'Venmo Transfer', merchant: 'VENMO', category: 'Transfer', minAmount: 20, maxAmount: 500, frequency: 0.06 },
   { type: 'deposit', description: 'Check Deposit', merchant: 'MOBILE DEPOSIT', category: 'Deposit', minAmount: 100, maxAmount: 2000, frequency: 0.04 },
-  { type: 'deposit', description: 'Interest Earned', merchant: 'BANK OF AMERICA', category: 'Interest', minAmount: 5, maxAmount: 100, frequency: 0.03 },
+  { type: 'deposit', description: 'Interest Earned', merchant: 'SWIFT FINANCIAL', category: 'Interest', minAmount: 5, maxAmount: 100, frequency: 0.03 },
   { type: 'deposit', description: 'Refund', merchant: 'AMAZON.COM', category: 'Refund', minAmount: 20, maxAmount: 500, frequency: 0.03 },
   { type: 'deposit', description: 'Refund', merchant: 'WALMART', category: 'Refund', minAmount: 15, maxAmount: 300, frequency: 0.02 },
 ];
@@ -82,7 +82,7 @@ const withdrawTemplates: TransactionTemplate[] = [
   { type: 'withdraw', description: 'Insurance Premium', merchant: 'HEALTH INSURANCE', category: 'Insurance', minAmount: 200, maxAmount: 600, frequency: 0.02 },
   
   // ATM & Transfers
-  { type: 'withdraw', description: 'ATM Withdrawal', merchant: 'BANK OF AMERICA ATM', category: 'Cash', minAmount: 20, maxAmount: 200, frequency: 0.05 },
+  { type: 'withdraw', description: 'ATM Withdrawal', merchant: 'SWIFT FINANCIAL ATM', category: 'Cash', minAmount: 20, maxAmount: 200, frequency: 0.05 },
   { type: 'withdraw', description: 'ATM Withdrawal', merchant: 'ATM', category: 'Cash', minAmount: 40, maxAmount: 300, frequency: 0.04 },
   { type: 'withdraw', description: 'Zelle Transfer', merchant: 'ZELLE TO JANE SMITH', category: 'Transfer', minAmount: 50, maxAmount: 500, frequency: 0.03 },
   { type: 'withdraw', description: 'Venmo Payment', merchant: 'VENMO', category: 'Transfer', minAmount: 20, maxAmount: 200, frequency: 0.03 },
@@ -209,7 +209,7 @@ export function generateMockTransactions(options: MockHistoryOptions) {
       balance: totalAmount,
       description: adjustment > 0 ? 'Direct Deposit - Salary - EMPLOYER INC' : 'Balance Adjustment',
       category: adjustment > 0 ? 'Income' : 'Adjustment',
-      merchant: adjustment > 0 ? 'EMPLOYER INC' : 'BANK OF AMERICA'
+      merchant: adjustment > 0 ? 'EMPLOYER INC' : 'SWIFT FINANCIAL'
     });
   }
   

@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(to right, #dc2626, #000); padding: 20px; text-align: center;">
-        <h1 style="color: white; margin: 0;">HABank</h1>
+        <h1 style="color: white; margin: 0;">swiftfinancial</h1>
       </div>
       <div style="padding: 30px; background: #f9f9f9;">
         <h2 style="color: #dc2626;">Transaction Receipt</h2>
@@ -16,14 +16,14 @@ export async function POST(req: NextRequest) {
         ${type === 'Transfer' ? `<p><strong>From:</strong> ${fromAccount}</p><p><strong>To:</strong> ${toAccount}</p>` : ''}
         <p><strong>Date:</strong> ${new Date(timestamp).toLocaleString()}</p>
         <hr style="border: 1px solid #ddd; margin: 20px 0;">
-        <p style="color: #666; font-size: 12px;">Thank you for banking with HABank</p>
+        <p style="color: #666; font-size: 12px;">Thank you for banking with swiftfinancial</p>
       </div>
     </div>
   `;
 
   try {
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
 
     await db.collection('mail').insertOne({
       to,

@@ -89,7 +89,7 @@ export default function Profile() {
       `}</style>
       <div className="app-container">
         <div className="top-nav">
-          <img src="/assets/BofA_rgb.png" alt="Swift Financial" style={{ height: '24px' }} />
+          <img src="/assets/sfb-logo.png" alt="Swift Financial" style={{ height: '24px' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button onClick={() => router.push('/dashboard')} style={{ background: '#0055C4', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
               DASHBOARD

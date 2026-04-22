@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const { userId, adminEmail, superadminEmail } = await req.json();
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const superadmin = await db.collection('accounts').findOne({ email: superadminEmail });
     if (superadmin?.role !== 'superadmin') {

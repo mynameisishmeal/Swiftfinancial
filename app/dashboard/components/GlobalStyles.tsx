@@ -91,7 +91,7 @@ export default function GlobalStyles() {
         font-size: 14px;
       }
 
-      .erica-btn {
+      .aria-btn {
         width: 48px;
         height: 48px;
         border-radius: 50%;

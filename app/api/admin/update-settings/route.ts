@@ -27,7 +27,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
 
     const updateData: any = {};
     

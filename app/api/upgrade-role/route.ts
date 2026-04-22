@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     }
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const account = await db.collection('accounts').findOne({ email });
     

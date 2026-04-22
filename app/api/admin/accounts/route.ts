@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const role = searchParams.get('role');
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     let accounts;
     if (role === 'superadmin') {
@@ -34,7 +34,7 @@ export async function DELETE(req: NextRequest) {
     const { accountId } = await req.json();
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const account = await db.collection('accounts').findOne({ accountId });
     if (!account) {
@@ -68,7 +68,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     // Check if account exists
     const account = await db.collection('accounts').findOne({ accountId });

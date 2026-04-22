@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   
   try {
     await client.connect();
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     const account = await db.collection('accounts').findOne({ email });
     
     if (account) {

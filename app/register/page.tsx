@@ -78,7 +78,7 @@ export default function Register() {
       <nav className="bg-black px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img height="28" width="230" alt="Swift Financial" src="/assets/BofA_rgb.png" />
+            <img height="28" width="230" alt="Swift Financial" src="/assets/sfb-logo.png" />
           </div>
           <a href="/" className="text-white hover:text-gray-300 text-sm font-light">Back to Login</a>
         </div>

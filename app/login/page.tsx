@@ -80,8 +80,8 @@ export default function Login() {
 
   return (
     <>
-      <link rel="stylesheet" type="text/css" href="/assets/vipaa-v4-jawr.css" media="all" />
-      <link type="text/css" rel="stylesheet" href="/assets/styles-67459201e251b94c0aa0.m.css" />
+      <link rel="stylesheet" type="text/css" href="/assets/sfb-main.css" media="all" />
+      <link type="text/css" rel="stylesheet" href="/assets/sfb-styles.css" />
       <style jsx global>{`
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow-x: hidden; padding-bottom: 0 !important; }
@@ -93,7 +93,7 @@ export default function Login() {
 
         <header style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', padding: '12px 0', position: 'relative', zIndex: 2 }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Link href="/"><Image src="/assets/BofA_rgb.png" alt="Swift Financial" width={200} height={24} style={{ cursor: 'pointer' }} /></Link>
+            <Link href="/"><Image src="/assets/sfb-logo.png" alt="Swift Financial" width={200} height={24} style={{ cursor: 'pointer' }} /></Link>
             <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
               <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>{t.personal}</Link>
               <Link href="#" style={{ fontSize: '14px', color: '#333', textDecoration: 'none' }}>{t.business}</Link>

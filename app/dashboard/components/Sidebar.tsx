@@ -80,7 +80,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activeNav, setAct
 
       <div className={`sidebar ${sidebarOpen ? '' : 'closed'}`}>
         <div className="sidebar-header">
-          <img src="/assets/BofA_rgb.png" alt="Bank of America" style={{ height: '24px' }} />
+          <img src="/assets/sfb-logo.png" alt="Swift Financial" style={{ height: '24px' }} />
           <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}>
             <Menu size={20} />
           </button>

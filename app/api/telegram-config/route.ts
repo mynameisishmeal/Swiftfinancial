@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     }
 
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     const collection = db.collection('accounts');
 
     const updateData: any = { 
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
     }
 
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     const collection = db.collection('accounts');
 
     const account = await collection.findOne(

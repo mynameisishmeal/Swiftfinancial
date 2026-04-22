@@ -105,17 +105,17 @@ export default function SuperAdminSettings() {
 
   return (
     <div>
-      <link rel="stylesheet" href="/assets/bofa-dashboard.css" />
-      <div className="bofa-dashboard">
-        <div className="bofa-header">
-          <div className="bofa-header-stripe"></div>
-          <div className="bofa-header-nav">
-            <div className="bofa-header-content">
-              <img className="bofa-logo" src="/assets/BofA_rgb.png" alt="Swift Financial" />
+      <link rel="stylesheet" href="/assets/sfb-dashboard.css" />
+      <div className="sfb-dashboard">
+        <div className="sfb-header">
+          <div className="sfb-header-stripe"></div>
+          <div className="sfb-header-nav">
+            <div className="sfb-header-content">
+              <img className="sfb-logo" src="/assets/sfb-logo.png" alt="Swift Financial" />
               <div style={{ color: 'white', fontSize: '18px', fontWeight: '300' }}>Admin Settings</div>
-              <div className="bofa-user-info">
+              <div className="sfb-user-info">
                 <span style={{ color: 'white', fontSize: '14px' }}>{userEmail}</span>
-                <button onClick={() => router.push('/admin')} className="bofa-logout-btn">
+                <button onClick={() => router.push('/admin')} className="sfb-logout-btn">
                   BACK TO ADMIN
                 </button>
               </div>
@@ -123,19 +123,19 @@ export default function SuperAdminSettings() {
           </div>
         </div>
 
-        <div className="bofa-main">
+        <div className="sfb-main">
           {message && (
-            <div className={`bofa-alert ${message.includes('✓') ? 'bofa-alert-success' : 'bofa-alert-error'}`}>
+            <div className={`sfb-alert ${message.includes('✓') ? 'sfb-alert-success' : 'sfb-alert-error'}`}>
               {message}
             </div>
           )}
 
-          <div className="bofa-card">
-            <div className="bofa-card-header">
-              <h3 className="bofa-card-title">Google Account Binding</h3>
+          <div className="sfb-card">
+            <div className="sfb-card-header">
+              <h3 className="sfb-card-title">Google Account Binding</h3>
             </div>
-            <div className="bofa-card-content">
-              <p style={{ fontSize: '14px', color: 'var(--bofa-gray-600)', marginBottom: '24px' }}>
+            <div className="sfb-card-content">
+              <p style={{ fontSize: '14px', color: 'var(--sfb-gray-600)', marginBottom: '24px' }}>
                 Bind a Google account to enable quick verification when creating user accounts.
               </p>
 
@@ -148,7 +148,7 @@ export default function SuperAdminSettings() {
                   <button
                     onClick={unbindGoogleAccount}
                     disabled={loading}
-                    className="bofa-btn"
+                    className="sfb-btn"
                     style={{ width: '100%', background: '#dc2626', color: 'white' }}
                   >
                     {loading ? 'UNBINDING...' : 'UNBIND GOOGLE ACCOUNT'}
@@ -158,7 +158,7 @@ export default function SuperAdminSettings() {
                 <button
                   onClick={bindGoogleAccount}
                   disabled={loading}
-                  className="bofa-btn"
+                  className="sfb-btn"
                   style={{ width: '100%', background: '#4285f4', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}
                 >
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -173,12 +173,12 @@ export default function SuperAdminSettings() {
             </div>
           </div>
 
-          <div className="bofa-card">
-            <div className="bofa-card-header">
-              <h3 className="bofa-card-title">How It Works</h3>
+          <div className="sfb-card">
+            <div className="sfb-card-header">
+              <h3 className="sfb-card-title">How It Works</h3>
             </div>
-            <div className="bofa-card-content">
-              <div style={{ fontSize: '14px', color: 'var(--bofa-gray-600)', lineHeight: '1.6' }}>
+            <div className="sfb-card-content">
+              <div style={{ fontSize: '14px', color: 'var(--sfb-gray-600)', lineHeight: '1.6' }}>
                 <p style={{ marginBottom: '12px' }}>1. Click "Bind Google Account" above</p>
                 <p style={{ marginBottom: '12px' }}>2. Sign in with your Google account</p>
                 <p style={{ marginBottom: '12px' }}>3. Your Google email will be linked to this admin account</p>

@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const { identifier, adminEmail } = await req.json();
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     // Find user by account number or email
     const user = await db.collection('accounts').findOne({

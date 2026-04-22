@@ -21,8 +21,8 @@ interface TopNavigationProps {
   showSearchResults: boolean;
   setShowSearchResults: (show: boolean) => void;
   searchResults: any[];
-  showErica: boolean;
-  setShowErica: (show: boolean) => void;
+  showAria: boolean;
+  setshowAria: (show: boolean) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   showToast: (message: string, type: 'success' | 'error') => void;
@@ -40,7 +40,7 @@ export default function TopNavigation(props: TopNavigationProps) {
     showInbox, setShowInbox, showProducts, setShowProducts,
     showNotifications, setShowNotifications, showProfileMenu, setShowProfileMenu,
     avatar, name, searchQuery, handleSearch, showSearchResults, setShowSearchResults,
-    searchResults, showErica, setShowErica, activeTab, setActiveTab,
+    searchResults, showAria, setshowAria, activeTab, setActiveTab,
     showToast, router, handleAvatarChange, logout, notifications, email, loadNotifications
   } = props;
 
@@ -79,7 +79,7 @@ export default function TopNavigation(props: TopNavigationProps) {
         .search-row { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
         .search-pill { flex: 1; background: #EAEAEA; border-radius: 24px; padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
         .search-pill input { flex: 1; background: none; border: none; outline: none; color: #555; font-size: 14px; }
-        .erica-btn { width: 48px; height: 48px; border-radius: 50%; background: #E31837; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
+        .aria-btn { width: 48px; height: 48px; border-radius: 50%; background: #E31837; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
         .search-results-panel { position: absolute; top: 100%; left: 0; right: 60px; background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); max-height: 400px; overflow-y: auto; z-index: 200; margin-top: 8px; border: 1px solid #e5e7eb; }
         .search-result-item { padding: 16px 20px; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 12px; }
         .search-result-item:hover { background: #f9fafb; }
@@ -276,7 +276,7 @@ export default function TopNavigation(props: TopNavigationProps) {
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
         </div>
-        <button className="erica-btn" onClick={() => setShowErica(!showErica)}>
+        <button className="aria-btn" onClick={() => setshowAria(!showAria)}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M4 8C4 8 6 6 12 6C18 6 20 8 20 8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
             <path d="M4 12C4 12 6 10 12 10C18 10 20 12 20 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>

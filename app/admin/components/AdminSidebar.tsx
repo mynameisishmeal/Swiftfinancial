@@ -75,7 +75,7 @@ export default function AdminSidebar({
       `}</style>
 
       <div className="sidebar-header">
-        <img src="/assets/BofA_rgb.png" alt="Swift Financial" style={{ height: '24px' }} />
+        <img src="/assets/sfb-logo.png" alt="Swift Financial" style={{ height: '24px' }} />
         <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 600 }}>ADMIN</div>
       </div>
       <nav className="sidebar-nav">

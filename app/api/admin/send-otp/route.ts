@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const { action, adminEmail, userEmail, otp } = await req.json();
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const admin = await db.collection('accounts').findOne({ email: adminEmail });
     if (!admin || (admin.role !== 'admin' && admin.role !== 'superadmin')) {
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
     }
 
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const admin = await db.collection('accounts').findOne({ email: adminEmail });
     if (!admin || (admin.role !== 'admin' && admin.role !== 'superadmin')) {

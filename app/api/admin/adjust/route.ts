@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const { accountId, amount, type } = await req.json();
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const account = await db.collection('accounts').findOne({ accountId });
     if (!account) {

@@ -7,7 +7,7 @@ async function addTestUser() {
   
   try {
     await client.connect();
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const testUser = {
       email: 'test@test.com',

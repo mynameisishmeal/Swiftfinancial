@@ -13,7 +13,7 @@ import DashboardTab from './components/DashboardTab';
 import TransferTab from './components/TransferTab';
 import { DepositTab, MoreTab } from './components/DepositMoreTabs';
 import TopNavigation from './components/TopNavigation';
-import EricaModal from './components/EricaModal';
+import AriaModal from './components/AriaModal';
 import { MenuOverlay, BottomNav } from './components/Navigation';
 import ReceiptModal from './components/ReceiptModal';
 import PinModal from './components/PinModal';
@@ -65,9 +65,9 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [showErica, setShowErica] = useState(false);
-  const [ericaMessage, setEricaMessage] = useState('');
-  const [ericaChat, setEricaChat] = useState<Array<{role: 'user' | 'assistant', message: string}>>([]);
+  const [showAria, setshowAria] = useState(false);
+  const [ariaMessage, setariaMessage] = useState('');
+  const [ariaChat, setariaChat] = useState<Array<{role: 'user' | 'assistant', message: string}>>([]);
   const [liveChatMessage, setLiveChatMessage] = useState('');
   const [liveChatMessages, setLiveChatMessages] = useState<Array<{sender: 'user' | 'admin', message: string, timestamp: Date}>>([]);
   const [showReceipt, setShowReceipt] = useState(false);
@@ -623,20 +623,20 @@ Swift Financial, N.A. Member FDIC.
     setShowSearchResults(results.length > 0);
   };
 
-  const handleEricaSubmit = async () => {
-    if (!ericaMessage.trim()) return;
+  const handleAriaSubmit = async () => {
+    if (!ariaMessage.trim()) return;
     
-    const userMsg = ericaMessage.trim();
-    setEricaChat(prev => [...prev, { role: 'user', message: userMsg }]);
-    setEricaMessage('');
+    const userMsg = ariaMessage.trim();
+    setariaChat(prev => [...prev, { role: 'user', message: userMsg }]);
+    setariaMessage('');
     
     try {
-      const res = await fetch('/api/erica', {
+      const res = await fetch('/api/aria', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMsg,
-          conversationHistory: ericaChat,
+          conversationHistory: ariaChat,
           userData: {
             balance,
             savingsBalance,
@@ -651,7 +651,7 @@ Swift Financial, N.A. Member FDIC.
       const data = await res.json();
       
       if (data.success) {
-        setEricaChat(prev => [...prev, { role: 'assistant', message: data.response }]);
+        setariaChat(prev => [...prev, { role: 'assistant', message: data.response }]);
         
         // Execute action if provided
         if (data.action?.type === 'navigate') {
@@ -661,10 +661,10 @@ Swift Financial, N.A. Member FDIC.
           }, 1000);
         }
       } else {
-        setEricaChat(prev => [...prev, { role: 'assistant', message: 'Sorry, I encountered an error. Please try again.' }]);
+        setariaChat(prev => [...prev, { role: 'assistant', message: 'Sorry, I encountered an error. Please try again.' }]);
       }
     } catch (error) {
-      setEricaChat(prev => [...prev, { role: 'assistant', message: 'Sorry, I\'m having trouble connecting. Please try again.' }]);
+      setariaChat(prev => [...prev, { role: 'assistant', message: 'Sorry, I\'m having trouble connecting. Please try again.' }]);
     }
   };
 
@@ -810,7 +810,7 @@ Swift Financial, N.A. Member FDIC.
           font-size: 14px;
         }
 
-        .erica-btn {
+        .aria-btn {
           width: 48px;
           height: 48px;
           border-radius: 50%;
@@ -1231,7 +1231,7 @@ Swift Financial, N.A. Member FDIC.
         {isDesktop && (
         <div className={`sidebar ${sidebarOpen ? '' : 'closed'}`}>
           <div className="sidebar-header">
-            <img src="/assets/BofA_rgb.png" alt="Swift Financial" style={{ height: '24px' }} />
+            <img src="/assets/sfb-logo.png" alt="Swift Financial" style={{ height: '24px' }} />
           </div>
           <nav className="sidebar-nav">
             <button className={`sidebar-nav-item ${activeNav === 'accounts' ? 'active' : ''}`} onClick={() => { setActiveNav('accounts'); setActiveTab('accounts'); }}>
@@ -1299,8 +1299,8 @@ Swift Financial, N.A. Member FDIC.
           showSearchResults={showSearchResults}
           setShowSearchResults={setShowSearchResults}
           searchResults={searchResults}
-          showErica={showErica}
-          setShowErica={setShowErica}
+          showAria={showAria}
+          setshowAria={setshowAria}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           showToast={showToast}
@@ -1312,14 +1312,14 @@ Swift Financial, N.A. Member FDIC.
           loadNotifications={loadNotifications}
         />
 
-        {/* Erica AI Assistant Modal */}
-        <EricaModal 
-          showErica={showErica}
-          setShowErica={setShowErica}
-          ericaMessage={ericaMessage}
-          setEricaMessage={setEricaMessage}
-          ericaChat={ericaChat}
-          handleEricaSubmit={handleEricaSubmit}
+        {/* Aria AI Assistant Modal */}
+        <AriaModal 
+          showAria={showAria}
+          setshowAria={setshowAria}
+          ariaMessage={ariaMessage}
+          setariaMessage={setariaMessage}
+          ariaChat={ariaChat}
+          handleAriaSubmit={handleAriaSubmit}
         />
 
         {/* Menu Overlay */}
@@ -1397,6 +1397,7 @@ Swift Financial, N.A. Member FDIC.
             }
           }} 
           transactionPin={transactionPin}
+          email={email}
           title="Enter Transaction PIN"
           subtitle="Enter your 4-digit PIN to authorize this transaction"
         />

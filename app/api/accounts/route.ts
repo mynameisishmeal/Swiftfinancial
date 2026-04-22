@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     const existingEmail = await db.collection('accounts').findOne({ email });
     if (existingEmail) {
@@ -125,7 +125,7 @@ export async function PUT(req: NextRequest) {
     const { accountId, amount, type } = await req.json();
     
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     let account = await db.collection('accounts').findOne({ accountId });
     if (!account) {
@@ -177,7 +177,7 @@ export async function GET(req: NextRequest) {
     }
 
     const client = await clientPromise;
-    const db = client.db('habank');
+    const db = client.db('swiftfinancial');
     
     let account = await db.collection('accounts').findOne({ email });
     

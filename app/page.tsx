@@ -85,8 +85,8 @@ export default function HomePage() {
 
   return (
     <>
-      <link rel="stylesheet" type="text/css" href="/assets/vipaa-v4-jawr.css" media="all" />
-      <link type="text/css" rel="stylesheet" href="/assets/styles-67459201e251b94c0aa0.m.css" />
+      <link rel="stylesheet" type="text/css" href="/assets/sfb-main.css" media="all" />
+      <link type="text/css" rel="stylesheet" href="/assets/sfb-styles.css" />
       <style jsx global>{`
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; }
@@ -552,7 +552,7 @@ export default function HomePage() {
       <header className="modern-header">
         <div className="modern-header-inner">
           <div className="header-brand">
-            <Image src="/assets/BofA_rgb.png" alt="Swift Financial" width={200} height={24} priority />
+            <Image src="/assets/sfb-logo.png" alt="Swift Financial" width={200} height={24} priority />
           </div>
           <nav className="modern-nav">
             <div className="nav-item dropdown">
@@ -1380,7 +1380,7 @@ export default function HomePage() {
                           <circle cx="6" cy="6" r="4" stroke="#666" strokeWidth="1.5"/>
                           <path d="M9 9l3 3" stroke="#666" strokeWidth="1.5" strokeLinecap="round"/>
                         </svg>
-                        <span style={{ fontSize: '11px', color: '#666' }}>Hi, I'm Erica. May I help?</span>
+                        <span style={{ fontSize: '11px', color: '#666' }}>Hi, I'm Aria. May I help?</span>
                       </div>
                       <div style={{ width: '32px', height: '32px', background: '#E31837', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -1476,7 +1476,7 @@ export default function HomePage() {
         <div className="modern-footer-inner">
           <div className="footer-top">
             <div className="footer-brand">
-              <Image src="/assets/BofA_rgb.png" alt="Swift Financial" width={200} height={24} />
+              <Image src="/assets/sfb-logo.png" alt="Swift Financial" width={200} height={24} />
               <p>Empowering financial futures through innovative banking solutions and personalized service since 1904.</p>
               <div className="footer-social">
                 <Link href="#" className="social-link">
@@ -1611,13 +1611,13 @@ export default function HomePage() {
                   <path d="M2 3h16l-8 5-8-5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2 3v14h16V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>support@bankofamerica.com</span>
+                <span>support@swiftfinancial.com</span>
               </div>
               <div className="contact-item">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path d="M2 3a1 1 0 0 1 1-1h2.153a1 1 0 0 1 .986.836l.74 4.435a1 1 0 0 1-.54 1.06l-1.548.773a11.037 11.037 0 0 0 6.105 6.105l.774-1.548a1 1 0 0 1 1.059-.54l4.435.74a1 1 0 0 1 .836.986V17a1 1 0 0 1-1 1h-2C7.82 18 2 12.18 2 5V3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>1-800-BANK-BOA</span>
+                <span>1-800-SFB-BANK</span>
               </div>
             </div>
           </div>
