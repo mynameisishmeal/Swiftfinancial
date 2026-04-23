@@ -1,10 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useAriaChat(email: string, name: string, userData: any) {
   const [ariaMessage, setAriaMessage] = useState('');
-  const [ariaChat, setAriaChat] = useState<Array<{role: 'user' | 'assistant', message: string}>>([]);
+  const [ariaChat, setAriaChat] = useState<Array<{role: 'user' | 'assistant' | 'admin', message: string}>>([]);
+  const [liveChatActive, setLiveChatActive] = useState(false);
 
-  const handleAriaSubmit = async (onNavigate?: (target: string) => void) => {
+  // Poll for admin messages
+  useEffect(() => {
+    const checkForAdminMessages = async () => {
+      const res = await fetch(`/api/livechat?userEmail=${email}`);
+      const data = await res.json();
+      if (data.messages) {
+        const adminMessages = data.messages.filter((m: any) => m.sender === 'admin');
+        const ariaMessages = data.messages.filter((m: any) => m.sender === 'aria');
+        const userMessages = data.messages.filter((m: any) => m.sender === 'user');
+        
+        // Rebuild chat from server messages
+        const newChat: Array<{role: 'user' | 'assistant' | 'admin', message: string}> = [];
+        data.messages.forEach((m: any) => {
+          if (m.sender === 'user') {
+            newChat.push({ role: 'user', message: m.message });
+          } else if (m.sender === 'admin') {
+            newChat.push({ role: 'admin', message: m.message });
+          } else if (m.sender === 'aria') {
+            newChat.push({ role: 'assistant', message: m.message });
+          }
+        });
+        
+        setAriaChat(newChat);
+        setLiveChatActive(data.takenOver || false);
+      }
+    };
+    
+    const interval = setInterval(checkForAdminMessages, 2000);
+    return () => clearInterval(interval);
+  }, [email]);
+
+  const handleAriaSubmit = async () => {
     if (!ariaMessage.trim()) return;
     
     const userMsg = ariaMessage.trim();
@@ -15,6 +47,7 @@ export function useAriaChat(email: string, name: string, userData: any) {
     const accountData = await accountRes.json();
     const managedBy = accountData.managedBy || null;
     
+    // Send to livechat
     const livechatRes = await fetch('/api/livechat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -30,11 +63,40 @@ export function useAriaChat(email: string, name: string, userData: any) {
     
     const livechatData = await livechatRes.json();
     
+    // If admin has taken over, don't send to Aria
     if (livechatData.takenOver) {
-      setAriaChat(prev => [...prev, { role: 'assistant', message: 'A live agent has joined the conversation. They will respond to you shortly.' }]);
+      if (!liveChatActive) {
+        setAriaChat(prev => [...prev, { role: 'assistant', message: 'A live agent has joined the conversation. They will respond to you shortly.' }]);
+        setLiveChatActive(true);
+      }
       return;
     }
     
+    // Check if user is requesting live chat
+    const lowerMsg = userMsg.toLowerCase();
+    const requestingAgent = lowerMsg.includes('agent') || lowerMsg.includes('human') || 
+                           lowerMsg.includes('talk to someone') || lowerMsg.includes('speak to someone') ||
+                           lowerMsg.includes('live chat') || lowerMsg.includes('representative');
+    
+    if (requestingAgent) {
+      setAriaChat(prev => [...prev, { role: 'assistant', message: 'I\'ve notified our support team. An agent will join this conversation shortly to assist you.' }]);
+      
+      await fetch('/api/livechat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userEmail: email, 
+          userName: 'Aria AI',
+          message: 'I\'ve notified our support team. An agent will join this conversation shortly to assist you.',
+          timestamp: new Date().toISOString(),
+          managedBy: managedBy,
+          isAria: true
+        }),
+      });
+      return;
+    }
+    
+    // Send to Aria AI
     try {
       const res = await fetch('/api/aria', {
         method: 'POST',
@@ -64,10 +126,6 @@ export function useAriaChat(email: string, name: string, userData: any) {
             isAria: true
           }),
         });
-        
-        if (data.action?.type === 'navigate' && onNavigate) {
-          setTimeout(() => onNavigate(data.action.target), 1000);
-        }
       } else {
         setAriaChat(prev => [...prev, { role: 'assistant', message: 'Sorry, I encountered an error. Please try again.' }]);
       }
@@ -76,5 +134,5 @@ export function useAriaChat(email: string, name: string, userData: any) {
     }
   };
 
-  return { ariaMessage, setAriaMessage, ariaChat, handleAriaSubmit };
+  return { ariaMessage, setAriaMessage, ariaChat, handleAriaSubmit, liveChatActive };
 }

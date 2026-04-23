@@ -68,7 +68,7 @@ export default function Dashboard() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showAria, setshowAria] = useState(false);
-  const { ariaMessage, setAriaMessage, ariaChat, handleAriaSubmit: ariaSubmit } = useAriaChat(email, name, { balance, savingsBalance, creditBalance, taxCleared, name, email });
+  const { ariaMessage, setAriaMessage, ariaChat, handleAriaSubmit: ariaSubmit, liveChatActive } = useAriaChat(email, name, { balance, savingsBalance, creditBalance, taxCleared, name, email });
   const [liveChatMessage, setLiveChatMessage] = useState('');
   const [liveChatMessages, setLiveChatMessages] = useState<Array<{sender: 'user' | 'admin', message: string, timestamp: Date}>>([]);
   const [showReceipt, setShowReceipt] = useState(false);
@@ -639,10 +639,7 @@ Swift Financial, N.A. Member FDIC.
   };
 
   const handleAriaSubmit = () => {
-    ariaSubmit((target) => {
-      setActiveTab(target);
-      setActiveNav(target);
-    });
+    ariaSubmit();
   };
 
   const handleLiveChatSubmit = async () => {

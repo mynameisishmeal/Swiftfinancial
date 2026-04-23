@@ -3,7 +3,7 @@ interface AriaModalProps {
   setshowAria: (show: boolean) => void;
   ariaMessage: string;
   setariaMessage: (message: string) => void;
-  ariaChat: Array<{role: 'user' | 'assistant', message: string}>;
+  ariaChat: Array<{role: 'user' | 'assistant' | 'admin', message: string}>;
   handleAriaSubmit: () => void;
 }
 
@@ -111,11 +111,12 @@ export default function AriaModal(props: AriaModalProps) {
                 maxWidth: '80%',
                 padding: '12px 16px',
                 borderRadius: '16px',
-                background: msg.role === 'user' ? '#E31837' : '#f3f4f6',
-                color: msg.role === 'user' ? 'white' : '#111827',
+                background: msg.role === 'user' ? '#E31837' : msg.role === 'admin' ? '#10b981' : '#f3f4f6',
+                color: msg.role === 'user' || msg.role === 'admin' ? 'white' : '#111827',
                 fontSize: '14px',
                 lineHeight: '1.5'
               }}>
+                {msg.role === 'admin' && <div style={{ fontSize: '10px', fontWeight: '600', marginBottom: '4px', opacity: 0.9 }}>Support Agent</div>}
                 {msg.message}
               </div>
             </div>

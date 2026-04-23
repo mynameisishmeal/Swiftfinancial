@@ -205,7 +205,7 @@ export default function LiveChatTab({
                     }}
                     style={{ padding: '8px 16px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
                   >
-                    Release to AI
+                    End Chat
                   </button>
                 )}
               </div>

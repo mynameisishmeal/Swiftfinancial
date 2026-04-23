@@ -77,8 +77,8 @@ function classifyIntent(message: string): { intent: string; confidence: number; 
     },
     {
       name: 'live_chat',
-      keywords: ['live chat', 'talk to human', 'speak to agent', 'customer service', 'representative', 'real person'],
-      weight: { 'live chat': 5, 'talk to human': 5, 'speak to agent': 5, 'customer service': 4, representative: 3, 'real person': 4 }
+      keywords: ['live chat', 'talk to human', 'speak to agent', 'customer service', 'representative', 'real person', 'agent', 'human', 'talk to someone', 'speak to someone'],
+      weight: { 'live chat': 5, 'talk to human': 5, 'speak to agent': 5, 'customer service': 4, representative: 3, 'real person': 4, agent: 5, human: 5, 'talk to someone': 5, 'speak to someone': 5 }
     }
   ];
 
@@ -187,7 +187,7 @@ function generateResponse(
       return "I'm here to help! You can ask me about:\n\n• Account balances and details\n• Making transfers and payments\n• Downloading statements\n• Credit card and rewards info\n• Zelle, wire transfers, and bill pay\n• Troubleshooting issues\n\nIf you need to speak with a human agent, just ask for live chat!\n\nWhat would you like to know?";
 
     case 'live_chat':
-      return "I'd be happy to connect you with a live agent! Click on 'More' in the menu, then select 'Live Chat' to start a conversation with our support team. They're available to help you with any questions or concerns.";
+      return "I'm connecting you to our live chat now. A support agent will be with you shortly to assist with your request.";
 
     default:
       if (confidence < 0.3) {
