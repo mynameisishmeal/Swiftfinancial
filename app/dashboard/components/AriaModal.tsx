@@ -64,7 +64,7 @@ export default function AriaModal(props: AriaModalProps) {
               </svg>
             </div>
             <div>
-              <div style={{ fontSize: '18px', fontWeight: '700' }}>Erica</div>
+              <div style={{ fontSize: '18px', fontWeight: '700' }}>Aria</div>
               <div style={{ fontSize: '12px', opacity: 0.9 }}>Your Virtual Financial Assistant</div>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function AriaModal(props: AriaModalProps) {
           {ariaChat.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>👋</div>
-              <div style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>Hi, I'm Erica!</div>
+              <div style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>Hi, I'm Aria!</div>
               <div style={{ fontSize: '14px' }}>Your virtual financial assistant. Ask me anything about your accounts, transfers, or banking services.</div>
             </div>
           )}
@@ -134,7 +134,7 @@ export default function AriaModal(props: AriaModalProps) {
             value={ariaMessage}
             onChange={(e) => setariaMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleAriaSubmit()}
-            placeholder="Ask Erica anything..."
+            placeholder="Ask Aria anything..."
             style={{
               flex: 1,
               padding: '12px 16px',

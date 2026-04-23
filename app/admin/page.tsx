@@ -105,7 +105,14 @@ export default function AdminDashboard() {
   const loadLiveChats = async () => {
     const res = await fetch(`/api/livechat?adminEmail=${userEmail}`);
     const data = await res.json();
-    if (data.chats) setLiveChats(data.chats);
+    if (data.chats) {
+      setLiveChats(data.chats);
+      // Update selected chat if it exists
+      if (selectedChat) {
+        const updatedChat = data.chats.find((c: any) => c.userEmail === selectedChat.userEmail);
+        if (updatedChat) setSelectedChat(updatedChat);
+      }
+    }
   };
 
   const loadGoogleBinding = async (email: string) => {
@@ -210,12 +217,10 @@ export default function AdminDashboard() {
     await fetch('/api/livechat', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userEmail: selectedChat.userEmail, message: adminMessage.trim(), timestamp: new Date() }),
+      body: JSON.stringify({ userEmail: selectedChat.userEmail, message: adminMessage.trim(), timestamp: new Date().toISOString() }),
     });
     setAdminMessage('');
     await loadLiveChats();
-    const updatedChat = liveChats.find(c => c.userEmail === selectedChat.userEmail);
-    if (updatedChat) setSelectedChat(updatedChat);
   };
 
   const handleHomepageReply = async () => {
