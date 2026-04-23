@@ -1,28 +1,19 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import clientPromise from '@/lib/mongodb';
 import { sendTelegramNotification, formatLiveChatNotification } from '@/lib/utils/telegram';
-
-const CHAT_FILE = path.join(process.cwd(), 'data', 'livechat.json');
-
-if (!fs.existsSync(path.join(process.cwd(), 'data'))) {
-  fs.mkdirSync(path.join(process.cwd(), 'data'));
-}
-
-if (!fs.existsSync(CHAT_FILE)) {
-  fs.writeFileSync(CHAT_FILE, JSON.stringify({ chats: [] }));
-}
 
 export async function POST(request: Request) {
   try {
     const { userEmail, userName, message, timestamp, managedBy, isAria } = await request.json();
     
-    const data = JSON.parse(fs.readFileSync(CHAT_FILE, 'utf-8'));
+    const client = await clientPromise;
+    const db = client.db('swiftfinancial');
+    const collection = db.collection('livechats');
     
-    let userChat = data.chats.find((c: any) => c.userEmail === userEmail);
+    let userChat = await collection.findOne({ userEmail });
     
     if (!userChat) {
-      userChat = {
+      const newChat = {
         userEmail,
         userName,
         managedBy: managedBy || null,
@@ -31,31 +22,38 @@ export async function POST(request: Request) {
         takenOver: false,
         aiActive: true
       };
-      data.chats.push(userChat);
+      await collection.insertOne(newChat);
+      userChat = await collection.findOne({ userEmail });
     } else if (managedBy && !userChat.managedBy) {
-      userChat.managedBy = managedBy;
+      await collection.updateOne(
+        { userEmail },
+        { $set: { managedBy } }
+      );
     }
     
-    userChat.messages.push({
+    const newMessage = {
       sender: isAria ? 'aria' : 'user',
       message,
       timestamp
-    });
+    };
     
-    if (!isAria) {
-      userChat.unreadCount += 1;
-      
-      // Send Telegram notification to admin on EVERY user message (not just first)
-      if (managedBy) {
-        const notificationText = formatLiveChatNotification(userName, userEmail, message);
-        const result = await sendTelegramNotification(notificationText, managedBy);
-        console.log('Telegram notification result:', result);
+    await collection.updateOne(
+      { userEmail },
+      { 
+        $push: { messages: newMessage } as any,
+        $inc: isAria ? {} : { unreadCount: 1 }
       }
+    );
+    
+    if (!isAria && managedBy) {
+      const notificationText = formatLiveChatNotification(userName, userEmail, message);
+      const result = await sendTelegramNotification(notificationText, managedBy);
+      console.log('Telegram notification result:', result);
     }
     
-    fs.writeFileSync(CHAT_FILE, JSON.stringify(data, null, 2));
+    const updatedChat = await collection.findOne({ userEmail });
     
-    return NextResponse.json({ success: true, takenOver: userChat.takenOver });
+    return NextResponse.json({ success: true, takenOver: updatedChat?.takenOver || false });
   } catch (error) {
     console.error('LiveChat POST error:', error);
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
@@ -68,20 +66,26 @@ export async function GET(request: Request) {
     const userEmail = searchParams.get('userEmail');
     const adminEmail = searchParams.get('adminEmail');
     
-    const data = JSON.parse(fs.readFileSync(CHAT_FILE, 'utf-8'));
+    const client = await clientPromise;
+    const db = client.db('swiftfinancial');
+    const collection = db.collection('livechats');
     
     if (adminEmail) {
-      const filteredChats = data.chats.filter((c: any) => 
-        c.managedBy === adminEmail || c.managedBy === null
-      );
-      return NextResponse.json({ chats: filteredChats });
+      const chats = await collection.find({
+        $or: [
+          { managedBy: adminEmail },
+          { managedBy: null }
+        ]
+      }).toArray();
+      return NextResponse.json({ chats });
     } else if (userEmail) {
-      const userChat = data.chats.find((c: any) => c.userEmail === userEmail);
-      return NextResponse.json({ messages: userChat?.messages || [] });
+      const userChat = await collection.findOne({ userEmail });
+      return NextResponse.json({ messages: userChat?.messages || [], takenOver: userChat?.takenOver || false });
     }
     
     return NextResponse.json({ chats: [] });
   } catch (error) {
+    console.error('LiveChat GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 });
   }
 }
@@ -90,31 +94,49 @@ export async function PUT(request: Request) {
   try {
     const { userEmail, message, timestamp, action } = await request.json();
     
-    const data = JSON.parse(fs.readFileSync(CHAT_FILE, 'utf-8'));
+    const client = await clientPromise;
+    const db = client.db('swiftfinancial');
+    const collection = db.collection('livechats');
     
-    const userChat = data.chats.find((c: any) => c.userEmail === userEmail);
-    
-    if (userChat) {
-      if (action === 'takeover') {
-        userChat.takenOver = true;
-        userChat.aiActive = false;
-        userChat.unreadCount = 0;
-      } else if (action === 'release') {
-        userChat.takenOver = false;
-        userChat.aiActive = true;
-      } else if (message) {
-        userChat.messages.push({
-          sender: 'admin',
-          message,
-          timestamp
-        });
-      }
-      
-      fs.writeFileSync(CHAT_FILE, JSON.stringify(data, null, 2));
+    if (action === 'takeover') {
+      await collection.updateOne(
+        { userEmail },
+        { 
+          $set: { 
+            takenOver: true, 
+            aiActive: false,
+            unreadCount: 0
+          }
+        }
+      );
+    } else if (action === 'release') {
+      await collection.updateOne(
+        { userEmail },
+        { 
+          $set: { 
+            takenOver: false, 
+            aiActive: true
+          }
+        }
+      );
+    } else if (message) {
+      await collection.updateOne(
+        { userEmail },
+        { 
+          $push: { 
+            messages: {
+              sender: 'admin',
+              message,
+              timestamp
+            }
+          } as any
+        }
+      );
     }
     
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('LiveChat PUT error:', error);
     return NextResponse.json({ error: 'Failed to send admin message' }, { status: 500 });
   }
 }
