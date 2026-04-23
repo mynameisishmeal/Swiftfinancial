@@ -83,8 +83,9 @@ export default function LiveChatTab({
         }
 
         .message.user .message-bubble {
-          background: #f3f4f6;
-          color: #111827;
+          background: #e0e7ff;
+          color: #1e40af;
+          border: 2px solid #818cf8;
         }
 
         .message.admin .message-bubble {
@@ -196,14 +197,18 @@ export default function LiveChatTab({
                 {selectedChat.takenOver && (
                   <button
                     onClick={async () => {
-                      await fetch('/api/livechat', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userEmail: selectedChat.userEmail, action: 'release' }),
-                      });
-                      window.location.reload();
+                      if (confirm('End this chat session? Aria AI will take over.')) {
+                        await fetch('/api/livechat', {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ userEmail: selectedChat.userEmail, action: 'release' }),
+                        });
+                        setSelectedChat(null);
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        window.location.reload();
+                      }
                     }}
-                    style={{ padding: '8px 16px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                    style={{ padding: '8px 16px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
                   >
                     End Chat
                   </button>
@@ -215,7 +220,8 @@ export default function LiveChatTab({
                 {selectedChat.messages.map((msg: any, idx: number) => (
                   <div key={idx} className={`message ${msg.sender === 'aria' ? 'user' : msg.sender}`}>
                     <div className="message-bubble">
-                      {msg.sender === 'aria' && <div style={{ fontSize: '10px', fontWeight: 600, marginBottom: '4px', opacity: 0.7 }}>Aria AI</div>}
+                      {msg.sender === 'aria' && <div style={{ fontSize: '10px', fontWeight: 600, marginBottom: '4px', opacity: 0.7, color: '#4338ca' }}>Aria AI</div>}
+                      {msg.sender === 'admin' && <div style={{ fontSize: '10px', fontWeight: 600, marginBottom: '4px', opacity: 0.7 }}>You</div>}
                       <div style={{ fontSize: '14px', marginBottom: '4px' }}>{msg.message}</div>
                       <div style={{ fontSize: '11px', opacity: 0.7 }}>
                         {new Date(msg.timestamp).toLocaleTimeString()}

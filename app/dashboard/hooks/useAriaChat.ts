@@ -11,10 +11,6 @@ export function useAriaChat(email: string, name: string, userData: any) {
       const res = await fetch(`/api/livechat?userEmail=${email}`);
       const data = await res.json();
       if (data.messages) {
-        const adminMessages = data.messages.filter((m: any) => m.sender === 'admin');
-        const ariaMessages = data.messages.filter((m: any) => m.sender === 'aria');
-        const userMessages = data.messages.filter((m: any) => m.sender === 'user');
-        
         // Rebuild chat from server messages
         const newChat: Array<{role: 'user' | 'assistant' | 'admin', message: string}> = [];
         data.messages.forEach((m: any) => {
@@ -27,14 +23,23 @@ export function useAriaChat(email: string, name: string, userData: any) {
           }
         });
         
+        // Check if chat was just ended
+        const wasActive = liveChatActive;
+        const isActive = data.takenOver || false;
+        
+        if (wasActive && !isActive) {
+          // Admin just ended chat
+          newChat.push({ role: 'assistant', message: 'The support agent has ended the chat. I\'m back to assist you with anything else you need!' });
+        }
+        
         setAriaChat(newChat);
-        setLiveChatActive(data.takenOver || false);
+        setLiveChatActive(isActive);
       }
     };
     
     const interval = setInterval(checkForAdminMessages, 2000);
     return () => clearInterval(interval);
-  }, [email]);
+  }, [email, liveChatActive]);
 
   const handleAriaSubmit = async () => {
     if (!ariaMessage.trim()) return;

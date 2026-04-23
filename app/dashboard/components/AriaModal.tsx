@@ -111,12 +111,14 @@ export default function AriaModal(props: AriaModalProps) {
                 maxWidth: '80%',
                 padding: '12px 16px',
                 borderRadius: '16px',
-                background: msg.role === 'user' ? '#E31837' : msg.role === 'admin' ? '#10b981' : '#f3f4f6',
-                color: msg.role === 'user' || msg.role === 'admin' ? 'white' : '#111827',
+                background: msg.role === 'user' ? '#E31837' : msg.role === 'admin' ? '#10b981' : '#e0e7ff',
+                color: msg.role === 'user' || msg.role === 'admin' ? 'white' : '#1e40af',
                 fontSize: '14px',
-                lineHeight: '1.5'
+                lineHeight: '1.5',
+                border: msg.role === 'assistant' ? '2px solid #818cf8' : 'none'
               }}>
                 {msg.role === 'admin' && <div style={{ fontSize: '10px', fontWeight: '600', marginBottom: '4px', opacity: 0.9 }}>Support Agent</div>}
+                {msg.role === 'assistant' && <div style={{ fontSize: '10px', fontWeight: '600', marginBottom: '4px', color: '#4338ca' }}>Aria AI</div>}
                 {msg.message}
               </div>
             </div>
