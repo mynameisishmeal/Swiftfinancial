@@ -32,7 +32,6 @@ export default function HomePage() {
 
   // Define slides outside of render to keep reference stable
   const heroSlides = [
-    { type: 'image', src: '/assets/bk.jpg', duration: 8000 },
     { type: 'video', src: '/assets/277094_medium.mp4', duration: 15000 },
     { type: 'video', src: '/assets/298813_medium.mp4', duration: 15000 }
   ];
@@ -41,12 +40,12 @@ export default function HomePage() {
   useEffect(() => {
     const currentSlideDuration = heroSlides[currentSlide].duration;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3); // Use hardcoded 3 instead of heroSlides.length
+      setCurrentSlide((prev) => (prev + 1) % 2);
     }, currentSlideDuration);
 
     return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSlide]); // Only depend on currentSlide
+  }, [currentSlide]);
 
   // Load chat messages
   useEffect(() => {
