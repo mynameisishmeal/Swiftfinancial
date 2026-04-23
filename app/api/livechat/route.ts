@@ -45,10 +45,11 @@ export async function POST(request: Request) {
     if (!isAria) {
       userChat.unreadCount += 1;
       
-      // Send Telegram notification to admin on first user message
-      if (userChat.messages.filter((m: any) => m.sender === 'user').length === 1 && managedBy) {
+      // Send Telegram notification to admin on EVERY user message (not just first)
+      if (managedBy) {
         const notificationText = formatLiveChatNotification(userName, userEmail, message);
-        await sendTelegramNotification(notificationText, managedBy);
+        const result = await sendTelegramNotification(notificationText, managedBy);
+        console.log('Telegram notification result:', result);
       }
     }
     
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ success: true, takenOver: userChat.takenOver });
   } catch (error) {
+    console.error('LiveChat POST error:', error);
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
   }
 }

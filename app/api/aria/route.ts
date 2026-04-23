@@ -178,7 +178,7 @@ function generateResponse(
       return "You currently have 15,000 rewards points, which equals approximately $150 in value. You can redeem these for cash back, travel, gift cards, or statement credits. Would you like to see your rewards options?";
 
     case 'greeting':
-      return `Hello! I'm Erica, your virtual financial assistant. Your checking balance is $${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}. How can I help you today?`;
+      return `Hello! I'm Aria, your virtual financial assistant. Your checking balance is $${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}. How can I help you today?`;
 
     case 'thanks':
       return "You're welcome! Is there anything else I can help you with today?";
@@ -193,7 +193,7 @@ function generateResponse(
       if (confidence < 0.3) {
         return "I'm not quite sure what you're asking. I can help you with:\n\n• Checking balances\n• Making transfers and payments\n• Downloading statements\n• Account information\n• Rewards and credit cards\n\nCould you rephrase your question?";
       }
-      return "I'm Erica, your virtual financial assistant. I can help you with:\n\n• Checking balances\n• Making transfers and payments\n• Downloading statements\n• Account information\n• Rewards and credit cards\n\nWhat can I help you with today?";
+      return "I'm Aria, your virtual financial assistant. I can help you with:\n\n• Checking balances\n• Making transfers and payments\n• Downloading statements\n• Account information\n• Rewards and credit cards\n\nWhat can I help you with today?";
   }
 }
 

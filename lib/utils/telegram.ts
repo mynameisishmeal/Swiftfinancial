@@ -1,23 +1,29 @@
+import clientPromise from '@/lib/mongodb';
+
 export async function sendTelegramNotification(message: string, adminEmail?: string) {
   try {
     if (!adminEmail) return { success: false, error: 'No admin email' };
     
-    // Get admin's Telegram config from DB
-    const configRes = await fetch(`/api/telegram-config?email=${adminEmail}`);
-    const config = await configRes.json();
+    // Get admin's Telegram config from DB directly
+    const client = await clientPromise;
+    const db = client.db('swiftfinancial');
+    const account = await db.collection('accounts').findOne(
+      { email: adminEmail },
+      { projection: { telegramBotToken: 1, telegramChatId: 1, telegramEnabled: 1 } }
+    );
     
-    if (!config.success || !config.telegramBotToken || !config.telegramChatId || !config.telegramEnabled) {
+    if (!account || !account.telegramBotToken || !account.telegramChatId || !account.telegramEnabled) {
       console.log('Telegram not configured for admin:', adminEmail);
       return { success: false, error: 'Not configured' };
     }
     
-    const telegramUrl = `https://api.telegram.org/bot${config.telegramBotToken}/sendMessage`;
+    const telegramUrl = `https://api.telegram.org/bot${account.telegramBotToken}/sendMessage`;
     
     const response = await fetch(telegramUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: config.telegramChatId,
+        chat_id: account.telegramChatId,
         text: message,
         parse_mode: 'HTML'
       })

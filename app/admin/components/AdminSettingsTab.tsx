@@ -55,6 +55,27 @@ export default function AdminSettingsTab({
     }
   };
 
+  const handleTestTelegram = async () => {
+    if (!telegramBotToken.trim() || !telegramChatId.trim()) {
+      showToast?.('Please save your Telegram settings first', 'error');
+      return;
+    }
+    setTelegramLoading(true);
+    const email = localStorage.getItem('userEmail');
+    const res = await fetch('/api/telegram-test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminEmail: email })
+    });
+    const data = await res.json();
+    setTelegramLoading(false);
+    if (data.success) {
+      showToast?.('Test message sent! Check your Telegram.', 'success');
+    } else {
+      showToast?.(`Failed to send test: ${data.error || 'Unknown error'}`, 'error');
+    }
+  };
+
   return (
     <>
       <style jsx>{`
@@ -191,13 +212,22 @@ export default function AdminSettingsTab({
               {userRole === 'superadmin' ? 'Enable Telegram notifications for homepage chat messages' : 'Enable Telegram notifications for live chat messages from your managed users'}
             </span>
           </label>
-          <button 
-            disabled={telegramLoading}
-            style={{ width: '100%', padding: '12px 24px', background: telegramLoading ? '#9ca3af' : '#0088cc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: telegramLoading ? 'not-allowed' : 'pointer' }} 
-            onClick={handleSaveTelegram}
-          >
-            {telegramLoading ? 'SAVING...' : 'SAVE TELEGRAM SETTINGS'}
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              disabled={telegramLoading}
+              style={{ flex: 1, padding: '12px 24px', background: telegramLoading ? '#9ca3af' : '#0088cc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: telegramLoading ? 'not-allowed' : 'pointer' }} 
+              onClick={handleSaveTelegram}
+            >
+              {telegramLoading ? 'SAVING...' : 'SAVE TELEGRAM SETTINGS'}
+            </button>
+            <button 
+              disabled={telegramLoading || !telegramBotToken.trim() || !telegramChatId.trim()}
+              style={{ padding: '12px 24px', background: (telegramLoading || !telegramBotToken.trim() || !telegramChatId.trim()) ? '#9ca3af' : '#10b981', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: (telegramLoading || !telegramBotToken.trim() || !telegramChatId.trim()) ? 'not-allowed' : 'pointer' }} 
+              onClick={handleTestTelegram}
+            >
+              TEST
+            </button>
+          </div>
         </div>
       </div>
 
