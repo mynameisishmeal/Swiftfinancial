@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { sendTelegramNotification, formatLiveChatNotification } from '@/lib/utils/telegram';
 
 const CHAT_FILE = path.join(process.cwd(), 'data', 'livechat.json');
 
@@ -14,7 +15,7 @@ if (!fs.existsSync(CHAT_FILE)) {
 
 export async function POST(request: Request) {
   try {
-    const { userEmail, userName, message, timestamp, managedBy } = await request.json();
+    const { userEmail, userName, message, timestamp, managedBy, isAria } = await request.json();
     
     const data = JSON.parse(fs.readFileSync(CHAT_FILE, 'utf-8'));
     
@@ -26,7 +27,9 @@ export async function POST(request: Request) {
         userName,
         managedBy: managedBy || null,
         messages: [],
-        unreadCount: 0
+        unreadCount: 0,
+        takenOver: false,
+        aiActive: true
       };
       data.chats.push(userChat);
     } else if (managedBy && !userChat.managedBy) {
@@ -34,15 +37,24 @@ export async function POST(request: Request) {
     }
     
     userChat.messages.push({
-      sender: 'user',
+      sender: isAria ? 'aria' : 'user',
       message,
       timestamp
     });
-    userChat.unreadCount += 1;
+    
+    if (!isAria) {
+      userChat.unreadCount += 1;
+      
+      // Send Telegram notification to admin on first user message
+      if (userChat.messages.filter((m: any) => m.sender === 'user').length === 1 && managedBy) {
+        const notificationText = formatLiveChatNotification(userName, userEmail, message);
+        await sendTelegramNotification(notificationText, managedBy);
+      }
+    }
     
     fs.writeFileSync(CHAT_FILE, JSON.stringify(data, null, 2));
     
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, takenOver: userChat.takenOver });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
   }
@@ -74,18 +86,27 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const { userEmail, message, timestamp } = await request.json();
+    const { userEmail, message, timestamp, action } = await request.json();
     
     const data = JSON.parse(fs.readFileSync(CHAT_FILE, 'utf-8'));
     
     const userChat = data.chats.find((c: any) => c.userEmail === userEmail);
     
     if (userChat) {
-      userChat.messages.push({
-        sender: 'admin',
-        message,
-        timestamp
-      });
+      if (action === 'takeover') {
+        userChat.takenOver = true;
+        userChat.aiActive = false;
+        userChat.unreadCount = 0;
+      } else if (action === 'release') {
+        userChat.takenOver = false;
+        userChat.aiActive = true;
+      } else if (message) {
+        userChat.messages.push({
+          sender: 'admin',
+          message,
+          timestamp
+        });
+      }
       
       fs.writeFileSync(CHAT_FILE, JSON.stringify(data, null, 2));
     }

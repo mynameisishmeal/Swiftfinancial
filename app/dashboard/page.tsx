@@ -19,6 +19,8 @@ import ReceiptModal from './components/ReceiptModal';
 import PinModal from './components/PinModal';
 import { payeeList, bankList } from './constants/lists';
 
+import { useAriaChat } from './hooks/useAriaChat';
+
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState('');
@@ -66,8 +68,7 @@ export default function Dashboard() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showAria, setshowAria] = useState(false);
-  const [ariaMessage, setariaMessage] = useState('');
-  const [ariaChat, setariaChat] = useState<Array<{role: 'user' | 'assistant', message: string}>>([]);
+  const { ariaMessage, setAriaMessage, ariaChat, handleAriaSubmit: ariaSubmit } = useAriaChat(email, name, { balance, savingsBalance, creditBalance, taxCleared, name, email });
   const [liveChatMessage, setLiveChatMessage] = useState('');
   const [liveChatMessages, setLiveChatMessages] = useState<Array<{sender: 'user' | 'admin', message: string, timestamp: Date}>>([]);
   const [showReceipt, setShowReceipt] = useState(false);
@@ -76,14 +77,16 @@ export default function Dashboard() {
   const [transactionPin, setTransactionPin] = useState('');
   const [showPinModal, setShowPinModal] = useState(false);
   const [pendingTransferAction, setPendingTransferAction] = useState<(() => void) | null>(null);
+  const [customBanks, setCustomBanks] = useState<any[]>([]);
   const router = useRouter();
 
   const filteredPayees = payeeSearch.length > 0
     ? payeeList.filter(p => p.name.toLowerCase().includes(payeeSearch.toLowerCase()))
     : [];
 
+  const allBanks = [...bankList, ...customBanks.map(b => ({ name: b.name, category: b.category }))];
   const filteredBanks = bankSearch.length > 0
-    ? bankList.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()))
+    ? allBanks.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()))
     : [];
 
   useEffect(() => {
@@ -99,6 +102,7 @@ export default function Dashboard() {
     setIsLoading(false);
     loadAccount(userEmail);
     loadNotifications(userEmail);
+    loadCustomBanks();
 
     // Check account status every 10 seconds
     const accountCheckInterval = setInterval(async () => {
@@ -161,7 +165,10 @@ export default function Dashboard() {
         const res = await fetch(`/api/livechat?userEmail=${email}`);
         const data = await res.json();
         if (data.messages) {
-          setLiveChatMessages(data.messages);
+          setLiveChatMessages(data.messages.map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp)
+          })));
         }
       };
       loadMessages();
@@ -212,6 +219,14 @@ export default function Dashboard() {
     const data = await res.json();
     if (data.notifications) {
       setNotifications(data.notifications);
+    }
+  };
+
+  const loadCustomBanks = async () => {
+    const res = await fetch('/api/admin/custom-banks');
+    const data = await res.json();
+    if (data.banks) {
+      setCustomBanks(data.banks);
     }
   };
 
@@ -623,56 +638,21 @@ Swift Financial, N.A. Member FDIC.
     setShowSearchResults(results.length > 0);
   };
 
-  const handleAriaSubmit = async () => {
-    if (!ariaMessage.trim()) return;
-    
-    const userMsg = ariaMessage.trim();
-    setariaChat(prev => [...prev, { role: 'user', message: userMsg }]);
-    setariaMessage('');
-    
-    try {
-      const res = await fetch('/api/aria', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMsg,
-          conversationHistory: ariaChat,
-          userData: {
-            balance,
-            savingsBalance,
-            creditBalance,
-            taxCleared,
-            name,
-            email
-          }
-        })
-      });
-      
-      const data = await res.json();
-      
-      if (data.success) {
-        setariaChat(prev => [...prev, { role: 'assistant', message: data.response }]);
-        
-        // Execute action if provided
-        if (data.action?.type === 'navigate') {
-          setTimeout(() => {
-            setActiveTab(data.action.target);
-            setActiveNav(data.action.target);
-          }, 1000);
-        }
-      } else {
-        setariaChat(prev => [...prev, { role: 'assistant', message: 'Sorry, I encountered an error. Please try again.' }]);
-      }
-    } catch (error) {
-      setariaChat(prev => [...prev, { role: 'assistant', message: 'Sorry, I\'m having trouble connecting. Please try again.' }]);
-    }
+  const handleAriaSubmit = () => {
+    ariaSubmit((target) => {
+      setActiveTab(target);
+      setActiveNav(target);
+    });
   };
 
   const handleLiveChatSubmit = async () => {
     if (!liveChatMessage.trim()) return;
     
     const userMsg = liveChatMessage.trim();
-    const newMessage = { sender: 'user' as const, message: userMsg, timestamp: new Date() };
+    const timestamp = new Date();
+    const newMessage = { sender: 'user' as const, message: userMsg, timestamp };
+    
+    // Optimistically add message to UI
     setLiveChatMessages(prev => [...prev, newMessage]);
     setLiveChatMessage('');
     
@@ -689,7 +669,7 @@ Swift Financial, N.A. Member FDIC.
         userEmail: email, 
         userName: name,
         message: userMsg,
-        timestamp: new Date(),
+        timestamp: timestamp.toISOString(),
         managedBy: managedBy
       }),
     });
@@ -1317,7 +1297,7 @@ Swift Financial, N.A. Member FDIC.
           showAria={showAria}
           setshowAria={setshowAria}
           ariaMessage={ariaMessage}
-          setariaMessage={setariaMessage}
+          setariaMessage={setAriaMessage}
           ariaChat={ariaChat}
           handleAriaSubmit={handleAriaSubmit}
         />

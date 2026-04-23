@@ -1,4 +1,7 @@
 import React from 'react';
+import { generateIban } from '@/lib/utils/generators';
+import { insertTransaction, modifyTransaction, modifyUserFinancials, generateOTP, clearOTP, regenerateHistory } from '@/lib/utils/adminActions';
+import { formatCurrency } from '@/lib/utils/validation';
 
 export default function ManageAccountsTab({ 
   accounts, 
@@ -99,19 +102,14 @@ export default function ManageAccountsTab({
 
   const handleInsertTransaction = async () => {
     if (!selectedAccount || !txAmount || !txDescription) return;
-    const res = await fetch('/api/admin/insert-transaction', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        accountId: selectedAccount.accountId, 
-        adminEmail: userEmail,
-        type: txType,
-        amount: txAmount,
-        description: txDescription,
-        category: txCategory
-      }),
-    });
-    const data = await res.json();
+    const data = await insertTransaction(
+      selectedAccount.accountId,
+      userEmail,
+      txType,
+      txAmount,
+      txDescription,
+      txCategory
+    );
     alert(data.message);
     setTxAmount('');
     setTxDescription('');
@@ -121,26 +119,21 @@ export default function ManageAccountsTab({
 
   const handleModifyFinancials = async () => {
     if (!selectedAccount) return;
-    const res = await fetch('/api/admin/modify-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        accountId: selectedAccount.accountId,
-        adminEmail: userEmail,
-        updates: {
-          balance: editBalance,
-          checkingBalance: editChecking,
-          savingsBalance: editSavings,
-          creditLimit: editCredit,
-          ficoScore: editFico,
-          rewardsPoints: editRewards,
-          dailyLimit: editDaily,
-          monthlyLimit: editMonthly,
-          interestRate: editInterest
-        }
-      }),
-    });
-    const data = await res.json();
+    const data = await modifyUserFinancials(
+      selectedAccount.accountId,
+      userEmail,
+      {
+        balance: editBalance,
+        checkingBalance: editChecking,
+        savingsBalance: editSavings,
+        creditLimit: editCredit,
+        ficoScore: editFico,
+        rewardsPoints: editRewards,
+        dailyLimit: editDaily,
+        monthlyLimit: editMonthly,
+        interestRate: editInterest
+      }
+    );
     alert(data.message);
     setShowFinancials(false);
     window.location.reload();
@@ -148,41 +141,31 @@ export default function ManageAccountsTab({
 
   const handleDeleteTransaction = async (index: number) => {
     if (!selectedAccount || !confirm('Delete this transaction?')) return;
-    const res = await fetch('/api/admin/modify-transaction', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        accountId: selectedAccount.accountId,
-        adminEmail: userEmail,
-        action: 'delete',
-        transactionIndex: index
-      }),
-    });
-    const data = await res.json();
+    const data = await modifyTransaction(
+      selectedAccount.accountId,
+      userEmail,
+      'delete',
+      index
+    );
     alert(data.message);
     window.location.reload();
   };
 
   const handleEditTransaction = async (index: number) => {
     if (!selectedAccount) return;
-    const res = await fetch('/api/admin/modify-transaction', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        accountId: selectedAccount.accountId,
-        adminEmail: userEmail,
-        action: 'edit',
-        transactionIndex: index,
-        updates: {
-          type: editTxType,
-          amount: editTxAmount,
-          description: editTxDescription,
-          category: editTxCategory,
-          date: editTxDate
-        }
-      }),
-    });
-    const data = await res.json();
+    const data = await modifyTransaction(
+      selectedAccount.accountId,
+      userEmail,
+      'edit',
+      index,
+      {
+        type: editTxType,
+        amount: editTxAmount,
+        description: editTxDescription,
+        category: editTxCategory,
+        date: editTxDate
+      }
+    );
     alert(data.message);
     setEditingTx(null);
     window.location.reload();
@@ -506,10 +489,7 @@ export default function ManageAccountsTab({
                           />
                           <button
                             type="button"
-                            onClick={() => {
-                              const num = Math.floor(10 + Math.random() * 89).toString() + Date.now().toString().slice(-14);
-                              setEditIban('US' + num);
-                            }}
+                            onClick={() => setEditIban(generateIban())}
                             style={{ padding: '8px 12px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                           >
                             GEN

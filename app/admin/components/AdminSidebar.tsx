@@ -1,4 +1,4 @@
-import { Users, MessageSquare, Settings, UserPlus, Globe, UserCog, Bell } from 'lucide-react';
+import { Users, MessageSquare, Settings, UserPlus, Globe, UserCog, Bell, Building2 } from 'lucide-react';
 
 export default function AdminSidebar({ 
   activeTab, 
@@ -95,6 +95,10 @@ export default function AdminSidebar({
         <button className={`sidebar-nav-item ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => setActiveTab('notifications')}>
           <Bell size={20} />
           <span>Notification Monitor</span>
+        </button>
+        <button className={`sidebar-nav-item ${activeTab === 'custom-banks' ? 'active' : ''}`} onClick={() => setActiveTab('custom-banks')}>
+          <Building2 size={20} />
+          <span>Custom Banks</span>
         </button>
         {userRole === 'superadmin' && (
           <>

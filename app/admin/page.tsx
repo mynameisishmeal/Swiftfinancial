@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { useToast } from '../components/Toast';
+import { useAdminAccounts } from './hooks/useAdminAccounts';
 import AdminSidebar from './components/AdminSidebar';
 import AdminTopNav from './components/AdminTopNav';
 import LiveChatTab from './components/LiveChatTab';
@@ -13,6 +14,7 @@ import CreateAccountTab from './components/CreateAccountTab';
 import AdminSettingsTab from './components/AdminSettingsTab';
 import AssignUsersTab from './components/AssignUsersTab';
 import NotificationMonitorTab from './components/NotificationMonitorTab';
+import CustomBanksTab from './components/CustomBanksTab';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -25,9 +27,10 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 export default function AdminDashboard() {
-  const [accounts, setAccounts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedAccount, setSelectedAccount] = useState<any>(null);
+  const { accounts, loading, selectedAccount, setSelectedAccount, loadAllAccounts, deleteAccount, adjustBalance, toggleTaxClearance, changeRole, assignToSelf, updateUserDetails } = useAdminAccounts(
+    typeof window !== 'undefined' ? localStorage.getItem('userEmail') || '' : '',
+    typeof window !== 'undefined' ? localStorage.getItem('userRole') || '' : ''
+  );
   const [amount, setAmount] = useState('');
   const [claimIdentifier, setClaimIdentifier] = useState('');
   const [message, setMessage] = useState('');
@@ -99,28 +102,6 @@ export default function AdminDashboard() {
     }
   }, [activeTab, userRole]);
 
-  const loadAllAccounts = async () => {
-    setLoading(true);
-    const email = localStorage.getItem('userEmail');
-    const role = localStorage.getItem('userRole');
-    const res = await fetch(`/api/admin/accounts?adminEmail=${email}&role=${role}`);
-    const data = await res.json();
-    if (data.accounts) {
-      setAccounts(data.accounts);
-      setUsersCreated(data.accounts.filter((acc: any) => acc.role === 'user').length);
-      if (selectedAccount) {
-        const updated = data.accounts.find((acc: any) => acc.accountId === selectedAccount.accountId);
-        if (updated) setSelectedAccount(updated);
-      }
-    }
-    if (role === 'admin') {
-      const adminRes = await fetch(`/api/admin/self?email=${email}`);
-      const adminData = await adminRes.json();
-      if (adminData.userLimit) setUserLimit(adminData.userLimit);
-    }
-    setLoading(false);
-  };
-
   const loadLiveChats = async () => {
     const res = await fetch(`/api/livechat?adminEmail=${userEmail}`);
     const data = await res.json();
@@ -133,83 +114,11 @@ export default function AdminDashboard() {
     if (data.googleEmail) setGoogleEmail(data.googleEmail);
   };
 
-  const adjustBalance = async (type: string) => {
-    if (!selectedAccount || !amount) return;
-    const res = await fetch('/api/admin/adjust', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accountId: selectedAccount.accountId, amount: parseFloat(amount), type }),
-    });
-    const data = await res.json();
-    showToast(data.message, 'success');
-    setAmount('');
-    await loadAllAccounts();
-  };
-
-  const deleteAccount = async (accountId: string) => {
-    if (!confirm('Delete this account?')) return;
-    const res = await fetch('/api/admin/accounts', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accountId }),
-    });
-    const data = await res.json();
-    showToast(data.message, 'success');
-    await loadAllAccounts();
-  };
-
-  const toggleTaxClearance = async () => {
-    if (!selectedAccount) return;
-    const res = await fetch('/api/admin/tax', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accountId: selectedAccount.accountId, taxCleared: !selectedAccount.taxCleared }),
-    });
-    const data = await res.json();
-    showToast(data.message, 'success');
-    await loadAllAccounts();
-  };
-
-  const changeRole = async (newRole: string) => {
-    if (!selectedAccount || userRole !== 'superadmin') return;
-    const res = await fetch('/api/admin/role', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accountId: selectedAccount.accountId, role: newRole }),
-    });
-    const data = await res.json();
-    showToast(data.message, 'success');
-    await loadAllAccounts();
-  };
-
-  const assignToSelf = async () => {
-    if (!selectedAccount) return;
-    const res = await fetch('/api/admin/assign', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accountId: selectedAccount.accountId, adminEmail: userEmail }),
-    });
-    const data = await res.json();
-    showToast(data.message, 'success');
-    await loadAllAccounts();
-  };
-
   const claimUser = async (identifier: string) => {
     const res = await fetch('/api/admin/claim', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ identifier, adminEmail: userEmail }),
-    });
-    const data = await res.json();
-    showToast(data.message, 'success');
-    await loadAllAccounts();
-  };
-
-  const updateUserDetails = async (accountId: string, name: string, email: string, password: string) => {
-    const res = await fetch('/api/admin/accounts', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accountId, name, email, password }),
     });
     const data = await res.json();
     showToast(data.message, 'success');
@@ -258,7 +167,6 @@ export default function AdminDashboard() {
 
   const bindGoogleAccount = async () => {
     try {
-      setLoading(true);
       const result = await signInWithPopup(auth, googleProvider);
       const googleEmail = result.user.email;
       const res = await fetch('/api/admin/bind-google', {
@@ -275,14 +183,11 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       showToast('Failed to bind Google account', 'error');
-    } finally {
-      setLoading(false);
     }
   };
 
   const unbindGoogleAccount = async () => {
     if (!confirm('Unbind Google account?')) return;
-    setLoading(true);
     try {
       await signOut(auth);
     } catch (error) {}
@@ -298,7 +203,6 @@ export default function AdminDashboard() {
     } else {
       showToast(data.message, 'error');
     }
-    setLoading(false);
   };
 
   const handleAdminReply = async () => {
@@ -427,14 +331,14 @@ export default function AdminDashboard() {
                   setSelectedAccount={setSelectedAccount} 
                   amount={amount} 
                   setAmount={setAmount} 
-                  adjustBalance={adjustBalance} 
-                  deleteAccount={deleteAccount} 
-                  toggleTaxClearance={toggleTaxClearance} 
-                  changeRole={changeRole} 
-                  assignToSelf={assignToSelf} 
+                  adjustBalance={(type: string) => adjustBalance(type, amount, showToast)} 
+                  deleteAccount={(id: string) => deleteAccount(id, showToast)} 
+                  toggleTaxClearance={() => toggleTaxClearance(showToast)} 
+                  changeRole={(role: string) => changeRole(role, showToast)} 
+                  assignToSelf={() => assignToSelf(showToast)} 
                   userRole={userRole} 
                   loading={loading}
-                  updateUserDetails={updateUserDetails}
+                  updateUserDetails={(id: string, name: string, email: string, pass: string) => updateUserDetails(id, name, email, pass, showToast)}
                   userEmail={userEmail}
                 />
               </>
@@ -466,6 +370,10 @@ export default function AdminDashboard() {
 
             {activeTab === 'notifications' && (
               <NotificationMonitorTab accounts={accounts} userEmail={userEmail} />
+            )}
+
+            {activeTab === 'custom-banks' && (
+              <CustomBanksTab userEmail={userEmail} showToast={(msg: string, type: 'success' | 'error') => showToast(msg, type)} />
             )}
 
             {activeTab === 'settings' && (

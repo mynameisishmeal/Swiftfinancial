@@ -148,7 +148,12 @@ export default function LiveChatTab({
                   onClick={() => setSelectedChat(chat)}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <div style={{ fontWeight: 600, color: '#111827' }}>{chat.userName}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ fontWeight: 600, color: '#111827' }}>{chat.userName}</div>
+                      {chat.aiActive && !chat.takenOver && (
+                        <div style={{ background: '#7c3aed', color: 'white', borderRadius: '12px', padding: '2px 8px', fontSize: '10px', fontWeight: 600 }}>AI</div>
+                      )}
+                    </div>
                     {chat.unreadCount > 0 && (
                       <div style={{ background: '#e31837', color: 'white', borderRadius: '12px', padding: '2px 8px', fontSize: '11px', fontWeight: 600 }}>
                         {chat.unreadCount}
@@ -168,14 +173,49 @@ export default function LiveChatTab({
         {selectedChat && (
           <div className="card">
             <div className="card-header">
-              <h3 className="card-title">{selectedChat.userName}</h3>
-              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{selectedChat.userEmail}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 className="card-title">{selectedChat.userName}</h3>
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{selectedChat.userEmail}</div>
+                </div>
+                {selectedChat.aiActive && !selectedChat.takenOver && (
+                  <button
+                    onClick={async () => {
+                      await fetch('/api/livechat', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userEmail: selectedChat.userEmail, action: 'takeover' }),
+                      });
+                      window.location.reload();
+                    }}
+                    style={{ padding: '8px 16px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Take Over from AI
+                  </button>
+                )}
+                {selectedChat.takenOver && (
+                  <button
+                    onClick={async () => {
+                      await fetch('/api/livechat', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userEmail: selectedChat.userEmail, action: 'release' }),
+                      });
+                      window.location.reload();
+                    }}
+                    style={{ padding: '8px 16px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Release to AI
+                  </button>
+                )}
+              </div>
             </div>
             <div className="card-content">
               <div className="chat-messages">
                 {selectedChat.messages.map((msg: any, idx: number) => (
-                  <div key={idx} className={`message ${msg.sender}`}>
+                  <div key={idx} className={`message ${msg.sender === 'aria' ? 'user' : msg.sender}`}>
                     <div className="message-bubble">
+                      {msg.sender === 'aria' && <div style={{ fontSize: '10px', fontWeight: 600, marginBottom: '4px', opacity: 0.7 }}>Aria AI</div>}
                       <div style={{ fontSize: '14px', marginBottom: '4px' }}>{msg.message}</div>
                       <div style={{ fontSize: '11px', opacity: 0.7 }}>
                         {new Date(msg.timestamp).toLocaleTimeString()}

@@ -1,4 +1,6 @@
 import React from 'react';
+import { generateIban } from '@/lib/utils/generators';
+import { validateEmail, validatePhone, validatePassword, validatePin } from '@/lib/utils/validation';
 
 export default function CreateAccountTab({ 
   userEmail, 
@@ -16,10 +18,8 @@ export default function CreateAccountTab({
   const [successMessage, setSuccessMessage] = React.useState('');
   const ibanRef = React.useRef<HTMLInputElement>(null);
 
-  const generateIban = () => {
-    const num = Math.floor(10 + Math.random() * 89).toString() + Date.now().toString().slice(-14);
-    const iban = 'US' + num;
-    if (ibanRef.current) ibanRef.current.value = iban;
+  const generateIbanForForm = () => {
+    if (ibanRef.current) ibanRef.current.value = generateIban();
   };
   
   const autofillForm = () => {
@@ -415,7 +415,7 @@ export default function CreateAccountTab({
               <label className="label">IBAN</label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input ref={ibanRef} name="iban" type="text" placeholder="" className="input" style={{ fontFamily: 'monospace' }} />
-                <button type="button" onClick={generateIban} style={{ padding: '12px 14px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>GEN</button>
+                <button type="button" onClick={generateIbanForForm} style={{ padding: '12px 14px', background: '#0055C4', color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>GEN</button>
               </div>
             </div>
             <div className="form-group">
